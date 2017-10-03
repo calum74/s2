@@ -36,5 +36,7 @@ add_library(s2core STATIC
 
 include_directories(src)
 
-add_executable(s2 s2/Main.cpp)
+add_executable(s2 cmdline/Main.cpp)
 target_link_libraries(s2 s2core)	
+
+install (TARGETS s2 DESTINATION bin)
