@@ -60,6 +60,7 @@ S2::Options::Options(int argc, const char *argv[])
 	generator = 0;
 	pulse = 0;
 	channel = 0;
+	simulation = false;
 
 	frequency = std::nan("");
 	amplitude = std::nan("");
@@ -257,7 +258,7 @@ void S2::OptionsVisitor::OnOption(const char * option)
 	int i;
 	bool b;
 	const char * str, *unit;
-	if (parseInt(option, "generator", -1, 255, i))
+	if (parseInt(option, "generator", 0, 255, i))
 		Generator(i);
 	else if (parseInt(option, "channel", 0, 2, i))
 		Channel(i);
@@ -287,10 +288,12 @@ void S2::OptionsVisitor::OnOption(const char * option)
 		Phase(i);
 	else if (parseBool(option, "sync", b))
 		Sync(b);
-	else if (parseInt(option, "pulse", -1, 16, i))
+	else if (parseInt(option, "pulse", 0, 16, i))
 		Pulse(i);
 	else if (parseString(option, "preset", str))
 		Preset(str);
+	else if (parseBool(option, "simulation", b))
+		Simulation(b);
 	else
 		UnrecognisedOption(option);
 }
@@ -374,4 +377,9 @@ void S2::Options::Pulse(int id)
 void S2::Options::Preset(const char * filename)
 {
 	preset = filename;
+}
+
+void S2::Options::Simulation(bool b)
+{
+	simulation = b;
 }

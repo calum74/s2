@@ -5,7 +5,7 @@
 class Controller : public S2::OptionsVisitor
 {
 public:
-	Controller(const S2::Options &o)
+	Controller(const S2::Options &o) : devices(o)
 	{
 		generator = o.generator;
 		channel = o.channel;
@@ -98,12 +98,15 @@ public:
 
 	void Phase(int degrees)
 	{
+		// !!
 	}
 
 	virtual void Sync(bool on)
 	{
-		// This is no longer available
+		// !!
 	}
+
+	void Simulation(bool) { }
 
 	void Duty(double duty)
 	{

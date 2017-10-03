@@ -61,8 +61,14 @@ int S2::Win32Stream::Write(const char * buffer, int size)
 }
 
 
-S2::Devices::Devices()
+S2::Devices::Devices(const Options & options)
 {
+	if (options.simulation)
+	{
+		generators.push_back(Generator(0, ""));
+		pulses.push_back(Pulse(0, ""));
+	}
+
 	char devices[40096]; // !! 
 	auto r = QueryDosDeviceA(NULL, devices, sizeof(devices));
 	for (char * device = devices; device<devices + r; device += strlen(device) + 1)
@@ -90,8 +96,6 @@ S2::Devices::Devices()
 		}
 	}
 
-	generators.push_back(Generator(-1, ""));
-	pulses.push_back(Pulse(-1, ""));
 }
 
 

@@ -43,6 +43,7 @@ namespace S2
 		virtual void Sync(bool on)=0;
 		virtual void Duty(double percent) = 0;
 		virtual void Preset(const char * filename) = 0;
+		virtual void Simulation(bool b) = 0;
 	private:
 		bool parseInt(const char * option, const char * variable, int min, int max, int & output);
 		bool parseSuffix(const char * option, const char * variable, const char * unitOptional, double min, double max, double & output);
@@ -68,6 +69,7 @@ namespace S2
 		double frequency;
 		double amplitude;
 		double duration;
+		bool simulation;
 
 		int pulse; // 0=default.
 		int generator; // 0=default, otherwise need to specify.
@@ -98,6 +100,7 @@ namespace S2
 		virtual void Sync(bool on);
 		virtual void Duty(double percent);
 		void Preset(const char * filename);
+		void Simulation(bool b);
 	};
 
 }

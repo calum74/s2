@@ -183,7 +183,7 @@ void S2::Generator::Send(const char * buffer)
 
 void S2::Generator::Open()
 {
-	stream = id==-1 ? std::make_shared<DummyGenerator>(true) : OpenGenerator(filename);
+	stream = filename.empty() ? std::make_shared<DummyGenerator>(true) : OpenGenerator(filename);
 }
 
 S2::Stream::~Stream()

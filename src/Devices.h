@@ -8,7 +8,7 @@ namespace S2
 	{
 	public:
 		// Enumerators all devices but does not try to open them.
-		Devices();
+		Devices(const Options & options);
 
 		std::vector<Pulse> pulses;
 		std::vector<Generator> generators;

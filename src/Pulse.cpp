@@ -8,7 +8,7 @@ S2::Pulse::Pulse(int id, const char * filename) : Device(id, filename)
 
 void S2::Pulse::Open()
 {
-	stream = id==-1 ? std::make_shared<DummyPulse>() : OpenPulse(filename.c_str());
+	stream = filename.empty() ? std::make_shared<DummyPulse>() : OpenPulse(filename.c_str());
 }
 
 double S2::Pulse::BPM()

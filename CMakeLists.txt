@@ -13,6 +13,7 @@ endif()
 
 add_library(s2core STATIC
 	src/Control.cpp
+	src/Devices.h
 	src/Devices.cpp
 	src/Device.h
 	src/Generator.cpp

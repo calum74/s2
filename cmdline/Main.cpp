@@ -7,9 +7,9 @@
 #include <cstring>
 
 
-int S2::StatusCommand(const Options&)
+int S2::StatusCommand(const Options&options)
 {
-	Devices devices;
+	Devices devices(options);
 
 	if (devices.pulses.size()==1)
 		std::cout << "Pulse not connected\n";
@@ -41,7 +41,7 @@ int S2::PulseCommand(const Options & options)
 	}
 	try
 	{
-		Devices devices;
+		Devices devices(options);
 		Pulse &pulse = devices.GetPulse(options.pulse);
 		pulse.Open();
 
