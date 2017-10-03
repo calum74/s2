@@ -11,15 +11,15 @@ int S2::StatusCommand(const Options&options)
 {
 	Devices devices(options);
 
-	if (devices.pulses.size()==1)
+	if (devices.pulses.size()==0)
 		std::cout << "Pulse not connected\n";
 	else
-		std::cout << devices.pulses.size()-1 << " pulse connected:\n";
+		std::cout << devices.pulses.size() << " pulse connected:\n";
 	for(const auto & device : devices.pulses)
-		if(device.id!=-1)
+		// if(device.filename!="")
 		std::cout << "  " << device.id << ": " << device.filename << std::endl;
 
-	if (devices.generators.size()==1)
+	if (devices.generators.size()==0)
 	{
 		std::cout << "No generators connected\n";
 
@@ -27,7 +27,7 @@ int S2::StatusCommand(const Options&options)
 	else
 		std::cout << devices.generators.size() << " generators connected:\n";
 	for (const auto & g : devices.generators)
-		if(g.id!=-1)
+		//if(g.id!=-1)
 		std::cout << "  " << g.id << ": " << g.filename << std::endl;
 	return 0;
 }

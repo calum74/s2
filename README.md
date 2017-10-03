@@ -33,6 +33,8 @@ There are two ways to get the software. Pre-build binaries are available, which 
 
 Next, connect your generators and pulse and switch them on. On Windows, you may need to run the device driver setup program, located in `C:\Spooky2\CP210x_VCP_Windows`, and on MacOS, ... The drivers should automatically install on Linux.
 
+https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
+
 To see the attached devices, run
 
 ```

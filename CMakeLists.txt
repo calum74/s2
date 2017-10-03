@@ -7,6 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
 
 if(WIN32)
 	set(PLATFORM_CPP Win32.cpp)
+elif(APPLE)
+	set(PLATFORM_CPP Apple.cpp)
 else()
 	set(PLATFORM_CPP Linux.cpp)
 endif()

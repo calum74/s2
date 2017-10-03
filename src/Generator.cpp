@@ -51,14 +51,14 @@ void S2::Generator::Amplitude(int channel, double value)
 {
 	char buffer[20];
 	//!! Abstract snprintf
-	snprintf(buffer, 20, ":w%02d%04d\n", set_voltage_1+channel, int(value * 100));
+	snprintf(buffer, 20, ":w%02d%04d\r\n", set_voltage_1+channel, int(value * 100));
 	Send(buffer);
 }
 
 void S2::Generator::Output(int channel, bool value)
 {
 	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%1d\n", set_relay_1+channel, int(value));
+	snprintf(buffer, 20, ":w%02d%1d\r\n", set_relay_1+channel, int(value));
 	Send(buffer);
 }
 
@@ -153,7 +153,7 @@ void S2::Generator::Duty(int channel, double duty)
 void S2::Generator::Sync(bool sync)
 {
 	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_sync, (int)sync);
+	snprintf(buffer, 20, ":w%02d%d\r\n", set_sync, (int)sync);
 	Send(buffer);
 }
 
