@@ -45,16 +45,17 @@ public:
 		return devices.GetGenerator(generator).GetChannel(channel);
 	}
 
-	void Waveform(S2::Waveform f)
+	void Waveform(S2::BuiltinWaveform f)
 	{
 		const char * wavetext[] = { "sine", "square", "sawtooth", "hbomb" };
 		std::cout << "Setting generator " << generator << " channel " << channel << " to " << wavetext[f] << "\n";
 		GetChannel().Waveform(f);
 	}
 
-	void Waveform(const char*str)
+	void Waveform(const S2::WaveData &data)
 	{
-		std::cout << "Unrecognised waveform " << str << std::endl;
+		std::cout << "Setting waveform data\n";
+		GetChannel().Waveform(data);
 	}
 
 	void Amplitude(double a)

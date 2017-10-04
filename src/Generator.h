@@ -22,12 +22,14 @@ namespace S2
 	public:
 		virtual void Amplitude(double value) = 0;
 		virtual void Frequency(double value) = 0;
-		virtual void Waveform(const S2::Waveform &value) = 0;
-		virtual void Waveform(const S2::WaveData & data)=0;
+		virtual void Waveform(BuiltinWaveform value) = 0;
+		virtual void Waveform(const WaveData & data)=0;
 		virtual void Duty(double p) = 0;
 		virtual void Output(bool b) = 0;
 		virtual void Offset(double p) = 0;
 
+		//virtual void Sync() = 0;
+		//virtual void Phase(int p) = 0;
 		// !! Sync and phase ?? 
 	};
 
@@ -37,13 +39,14 @@ namespace S2
 		SingleChannel(Generator & generator, int id);
 		void Amplitude(double value);
 		void Frequency(double value);
-		void Waveform(const S2::Waveform &value);
-		void Waveform(const S2::WaveData & data);
+		void Waveform(BuiltinWaveform value);
+		void Waveform(const WaveData & data);
 		void Duty(double p);
 		void Output(bool b);
 		void Offset(double p);
 
 	private:
+		SingleChannel(const SingleChannel&) = delete;
 		Generator & generator;
 		int channel;
 	};
@@ -52,11 +55,13 @@ namespace S2
 	{
 	public:
 		InvertAndSync(Generator & generator);
+		InvertAndSync(const InvertAndSync&) = delete;
+
 
 		void Amplitude(double value);
 		void Frequency(double value);
-		void Waveform(const S2::Waveform &value);
-		void Waveform(const S2::WaveData & data);
+		void Waveform(BuiltinWaveform value);
+		void Waveform(const WaveData & data);
 		void Duty(double p);
 		void Output(bool b);
 		void Offset(double p);
@@ -85,20 +90,22 @@ namespace S2
 
 		void Send(const char * buffer);
 
+		void Sync(bool on);
+		void Phase(int channel, int degrees);
+
 	private:
 		void Amplitude(int channel, double value);
 		void Output(int channel, bool value);
 		void Frequency(int channel, double value);
-		void Waveform(int channel, S2::Waveform value);
-		void Waveform(int channel, const S2::WaveData & data);
+		void Waveform(int channel, BuiltinWaveform value);
+		void Waveform(int channel, const WaveData & data);
 		void Duty(int channel, double percent);
-		void Phase(int channel, int degrees);
 
 		// Offset is a number between -1 and +1. 0 means offset =0%
 		// Normally just use 0
 		void Offset(int channel, double offset);
 
-		void Sync(bool on);
+		void Send(int command, int channel, int data);
 
 	private:
 		InvertAndSync channel0;

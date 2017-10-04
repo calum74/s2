@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-
 namespace S2
 {
 	class InvalidCommandLineArgument : std::runtime_error
@@ -17,15 +16,16 @@ namespace S2
 		ValueOutOfRange(const char * option);
 	};
 
-	enum Waveform
+	enum BuiltinWaveform
 	{
-		sine, square, sawtooth, custom, hbomb=custom
+		sine, square, sawtooth
 	};
 
 	class OptionsVisitor
 	{
 	public:
 		void OnOption(const char * option);
+		void Waveform(const char * name);
 	protected:
 		virtual void Verbose(bool value)=0;
 		virtual void Duration(double seconds)=0;
@@ -36,8 +36,8 @@ namespace S2
 		virtual void Amplitude(double amplitude)=0;
 		virtual void Frequency(double frequency)=0;
 		virtual void Output(bool on)=0;
-		virtual void Waveform(S2::Waveform wf)=0;
-		virtual void Waveform(const char * name)=0;
+		virtual void Waveform(BuiltinWaveform wf)=0;
+		virtual void Waveform(const WaveData&) = 0;
 		virtual void Send(const char * cmd) = 0;
 		virtual void Lock(bool b) = 0;
 		virtual void Offset(double p) = 0;
@@ -93,8 +93,8 @@ namespace S2
 		virtual void Amplitude(double amplitude);
 		virtual void Frequency(double frequency);
 		virtual void Output(bool on);
-		virtual void Waveform(S2::Waveform wf);
-		virtual void Waveform(const char * name);
+		virtual void Waveform(BuiltinWaveform wf);
+		virtual void Waveform(const WaveData &);
 		virtual void Send(const char * cmd);
 		virtual void Lock(bool on);
 		virtual void Offset(double d);

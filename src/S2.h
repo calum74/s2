@@ -1,8 +1,8 @@
 #pragma once
 #include <stdexcept>
 
-#include "Options.h"
 #include "Waveforms.h"
+#include "Options.h"
 #include "Device.h"
 #include "Pulse.h"
 #include "Generator.h"

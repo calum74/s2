@@ -22,7 +22,7 @@ enum Commands
 	set_relay_2 = 62,
 	set_freq_scale_1 = 63,
 	set_freq_scale_2 = 64,
-	set_sync = 68	// Channel 2 copies settings from Channel 1 e.g. :w681 set sync on
+	set_sync = 68	// Channel 2 copies freq from Channel 1 e.g. :w681 set sync on
 };
 
 S2::Generator::Generator(int id, const char * filename) :
@@ -47,8 +47,20 @@ S2::Generator::Generator(const Generator & src) :
 	frequencyScaling[0] = frequencyScaling[1] = FrequencyScale::Unknown;
 }
 
+void S2::Generator::Send(int command, int channel, int value)
+{
+	if (channel < 0 || channel>1)
+		throw std::logic_error("Invalid channel to send command");
+	char buffer[20];
+	snprintf(buffer, 20, ":w%02d%d\r\n", command+channel, value);	// ?? \r
+	Send(buffer);
+}
+
 void S2::Generator::Amplitude(int channel, double value)
 {
+	Send(set_voltage_1, channel, int(value * 100));
+	return;
+
 	char buffer[20];
 	//!! Abstract snprintf
 	snprintf(buffer, 20, ":w%02d%04d\r\n", set_voltage_1+channel, int(value * 100));
@@ -57,6 +69,9 @@ void S2::Generator::Amplitude(int channel, double value)
 
 void S2::Generator::Output(int channel, bool value)
 {
+	Send(set_relay_1, channel, value);
+	return;
+
 	char buffer[20];
 	snprintf(buffer, 20, ":w%02d%1d\r\n", set_relay_1+channel, int(value));
 	Send(buffer);
@@ -72,89 +87,50 @@ void S2::Generator::Frequency(int channel, double value)
 	{
 		FrequencyScaling(channel, FrequencyScale::High);
 	}
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_frequency_1 + channel, frequencyScaling[channel]==FrequencyScale::High ? int(value*100) : int(value*100000));
-	Send(buffer);
+	Send(set_frequency_1, channel, frequencyScaling[channel]==FrequencyScale::High ? int(value*100) : int(value*100000));
 }
 
 void S2::Generator::FrequencyScaling(int channel, FrequencyScale fs)
 {
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_freq_scale_1 + channel, fs==FrequencyScale::High ? 0 : 1);
-	Send(buffer);
+	Send(set_freq_scale_1, channel, fs==FrequencyScale::High ? 0 : 1);
 	frequencyScaling[channel] = fs;
 }
 
 void S2::Generator::Offset(int channel, double p)
 {
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_offset_1 + channel, 100 + int(p*100.0));
-	Send(buffer);
+	Send(set_offset_1, channel, 100 + int(p*100.0));
 }
 
-void S2::Generator::Waveform(int channel, S2::Waveform f)
+void S2::Generator::Waveform(int channel, BuiltinWaveform f)
 {
-	if (f >= custom)
-	{
-		// Load the waveform
-		Waveform(channel, BuiltInWaveformData[8]);
-	}
-	else
-
-	{
-
-		char buffer[20];
-		snprintf(buffer, 20, ":w%02d%d\n", set_waveform_1 + channel, f);
-		Send(buffer);
-	}
+	Send(set_waveform_1, channel, f);
 }
 
 void S2::Generator::Waveform(int channel, const WaveData & data)
 {
 	std::stringstream ss;
-	ss << ":a08" << data[0];
+	ss << ":a0" << (1+channel) << data[0];
 	for (int i = 1; i < 1024; ++i)
 		ss << "," << data[i];
-	ss << "\n";
+	ss << "\n";  // ?? \r
 	Send(ss.str().c_str());
 
-//	Sleep(1.0);
-	{
-		std::stringstream ss;
-		ss << ":a09" << 1023 - data[0];
-		for (int i = 1; i < 1024; ++i)
-			ss << "," << 1023 - data[i];
-		ss << "\n";
-		Send(ss.str().c_str());
-	}
-
-	char buffer[20];
-	snprintf(buffer, 20, ":w%d%d\n", set_waveform_1, 108);
-	Send(buffer);
-
-	snprintf(buffer, 20, ":w%d%d\n", set_waveform_2, 109);
-	Send(buffer);
+	Send(set_waveform_1, channel, 101+channel);
 }
 
 void S2::Generator::Phase(int channel, int phase)
 {
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_phase_1 + channel, phase);
-	Send(buffer);
+	Send(set_phase_1, channel, phase);
 }
 
 void S2::Generator::Duty(int channel, double duty)
 {
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\n", set_duty_1 + channel, int(1000.0*duty));
-	Send(buffer);
+	Send(set_duty_1, channel, int(1000.0*duty));
 }
 
 void S2::Generator::Sync(bool sync)
 {
-	char buffer[20];
-	snprintf(buffer, 20, ":w%02d%d\r\n", set_sync, (int)sync);
-	Send(buffer);
+	Send(set_sync, 0, (int)sync);
 }
 
 void S2::Generator::Send(const char * buffer)
@@ -168,7 +144,7 @@ void S2::Generator::Send(const char * buffer)
 	int bytes; //  = Read(returnBuffer, 4);
 	do
 	{
-		Sleep(0.01);
+		Sleep(0.01);	// !! Should not be needed any more
 		bytes = stream->Read(returnBuffer, 4);
 	} while (bytes == 0);
 	returnBuffer[4] = 0;
@@ -259,7 +235,7 @@ void S2::SingleChannel::Frequency(double value)
 	generator.Frequency(channel, value);
 }
 
-void S2::SingleChannel::Waveform(const S2::Waveform &value)
+void S2::SingleChannel::Waveform(BuiltinWaveform value)
 {
 	generator.Waveform(channel, value);
 }
@@ -300,7 +276,7 @@ void S2::InvertAndSync::Frequency(double value)
 	generator.Frequency(0, value);
 }
 
-void S2::InvertAndSync::Waveform(const S2::Waveform &value)
+void S2::InvertAndSync::Waveform(BuiltinWaveform value)
 {
 	generator.Waveform(0, value);
 	generator.Waveform(1, value);

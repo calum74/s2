@@ -57,6 +57,11 @@ int S2::Win32Stream::Write(const char * buffer, int size)
 {
 	DWORD bytesWritten = 0;
 	BOOL w = WriteFile(file, buffer, size, &bytesWritten, nullptr);
+	if (!w)
+		throw IOError("Failed to write to generator");
+	w = FlushFileBuffers(file);
+	if(!w)
+		throw IOError("Failed to write to generator");
 	return bytesWritten;
 }
 

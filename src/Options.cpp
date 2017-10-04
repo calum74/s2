@@ -248,6 +248,13 @@ bool S2::OptionsVisitor::parsePercent(const char * option, const char * variable
 	return false;
 }
 
+void S2::OptionsVisitor::Waveform(const char * str)
+{
+	WaveData d;
+	LoadFromFile(str, d);
+	Waveform(d);
+}
+
 S2::ValueOutOfRange::ValueOutOfRange(const char * option) : InvalidCommandLineArgument(option)
 {
 }
@@ -276,10 +283,10 @@ void S2::OptionsVisitor::OnOption(const char * option)
 		Offset(d);
 	else if (splitOption(option, "waveform", str, unit))
 	{
-		if (strcmp(str, "sine") == 0) Waveform(S2::Waveform::sine);
-		else if (strcmp(str, "square") == 0) Waveform(S2::Waveform::square);
-		else if (strcmp(str, "sawtooth") == 0) Waveform(S2::Waveform::sawtooth);
-		else if (strcmp(str, "hbomb") == 0) Waveform(S2::Waveform::hbomb);
+		if (strcmp(str, "sine") == 0) Waveform(BuiltinWaveform::sine);
+		else if (strcmp(str, "square") == 0) Waveform(BuiltinWaveform::square);
+		else if (strcmp(str, "sawtooth") == 0) Waveform(BuiltinWaveform::sawtooth);
+		else if (strcmp(str, "hbomb") == 0) Waveform(h_bomb);
 		else Waveform(str);
 	}
 	else if (parsePercent(option, "duty", 0.0, 1.0, d))
@@ -298,11 +305,11 @@ void S2::OptionsVisitor::OnOption(const char * option)
 		UnrecognisedOption(option);
 }
 
-void S2::Options::Waveform(S2::Waveform)
+void S2::Options::Waveform(BuiltinWaveform)
 {
 }
 
-void S2::Options::Waveform(const char*str)
+void S2::Options::Waveform(const WaveData&)
 {
 }
 

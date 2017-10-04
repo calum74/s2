@@ -4,18 +4,20 @@ Cross-platform command line interface for Spooky2.
 
 ## Overview
 
-s2 is a command-line utility for controlling the Spooky2, and is designed as a simple replacement for the standard Spooky2 software. This is useful in scenarios where you don't have access to a Windows PC, and can be used for example on a Mac or Linux device such as a Raspberry Pi. A Raspberry Pi is a very cheap and low power device and is a great solution for people who don't want to buy a Windows PC or leave a PC switched on overnight.
+s2 is a command-line utility for controlling the Spooky2, and is designed as a simple replacement for the standard Spooky2 software. This is useful in scenarios where you don't have access to a Windows PC, and can be used for example on a Mac or Linux device such as a Raspberry Pi. A Raspberry Pi is a very cheap and low power device and is a great solution for people who don't want to buy a Windows PC or leave a PC switched on permanently.
 
 Features in common with the Spooky2:
 * Run presents from the Spooky2 collection.
 * Run saved Spooky2 programs.
+* Biofeedback scan
 
 Additional features (over Spooky2):
 * Run 2 different programs at the same time on the same generator.
-* Perform biofeedback scans using a new algorithm, and exports the results.
+* Perform biofeedback scans using a new algorithm, and exports the results to Spooky2.
 * Biofeedback scans can be interrupted and resumed.
 * Low level control, setting specific generator parameters
-* Pulse rate measurement.
+* Pulse rate function
+* Keeps a proper diary of all activities.
 
 Missing features:
 * Reverse lookup. This is because the Spooky2 database is encrypted, which I fully respect.
