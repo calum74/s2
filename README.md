@@ -18,6 +18,7 @@ Additional features (over Spooky2):
 * Low level control, setting specific generator parameters
 * Pulse rate function
 * Keeps a proper diary of all activities.
+* Compress program to a given time period.
 
 Missing features:
 * Reverse lookup. This is because the Spooky2 database is encrypted, which I fully respect.
@@ -68,7 +69,7 @@ The generator can be specified using the `generator=N` argument. The scan comman
 
 #### Building and installing on Linux
 
-You can tailor these steps to suit your environment. For example, you may already have the prerequisites installed (git, cmake, g++), in which case you can simply skip that step.
+You can tailor these steps to suit your environment. For example, you may already have the prerequisites installed (git, cmake, g++), in which case you can simply skip that step. Most people prefer to build outside the source tree, so adapt as appropriate.
 
 ```
 $ sudo apt-get install git cmake g++
@@ -84,7 +85,27 @@ To upgrade, go to the `s2` directory containing the source code, and run `git pu
 
 #### Building and installing on MacOS
 
+Install xcode command line tools and cmake.
+https://cmake.org/download/
+`xcode-select --install`
+
+```
+$ git clone https://github.com/calum74/s2.git
+$ cd s2
+$ cmake -DCMAKE_BUILD_TYPE=Release -GXcode
+$ xcodebuild
+```
+
 #### Building and installing on Windows
+
+Get the source code. This could be via ZIP file from github, using Git for Windows, or "Github Desktop". Install cmake (https://cmake.org/download/). Generate a Visual Studio solution file, and build the project in Visual Studio.
+
+```
+> git clone ...
+> cd s2
+> cmake -D ...
+> msbuild /p:Configuration=Release /p:Platform=x64
+```
 
 ## Quick start guide
 
@@ -94,17 +115,46 @@ To upgrade, go to the `s2` directory containing the source code, and run `git pu
 
 ## Variables
 
+### General comments
 
+Variables control the behaviour of the current program. Variables are stored in `%AppData%/.s2/` folder on Windows, or the `~/.s2` folder on Linux and MacOS. The `s2 set` command can view or change the default values.
 
-| Variable name | Commands | Default value | Description | Example |
-|---------------|----------|---------------|-------------|---------|
-| amplitude |
+Most commands are configurable. Variables can also be written on the command line following the command, and are the form `A=B` with no spaces. For example
+
+```
+s2 run generator=5 preset="My scan.txt" duration=1h
+```
+
+Commands that have a unit are required to specify it. For example
+
+```
+$ s2 control amplitude=5V     # Good
+$ s2 control frequency=500kHz # Good
+$ s2 control amplitude = 5V   # Bad: spaces
+$ s2 control amplitude=5      # Bad: no unit
+```
+
+Additional variables can be stored in files, and passed to the `s2` command using the `@` symbol, e.g.
+
+```
+s2 scan @my_settings.config
+```
+### List of variables
+
+| Variable name | Commands | Units | Values | Default value | Description |
+|---------------|----------|-------| -------|---------------|-------------|
+| amplitude | control, run | V, mV | 0-20/40V | | Sets the peak-peak voltage. When both generators are used, the value gives the combined amplitide. |
+
 | channel       | scan, run, control | 0 | Specifies which channel of the generator to use. Options are `0`, `1` or `2`. Channel `0` means "invert and sync" using both channels. | channel=1 |
-| frequency |
+| duration | control, run | s,m,h | | | Alter the total duration of the program or preset. |
+| frequency | control | uHz, mHz, Hz, kHz, MHz | Change the frequency on the generator. | frequency=123.45kHz |
 | generator | scan, run, control | 0 | Specify which generator to use. By default, generator 0 uses the next available generator. | `generator=3` |
-| pulse | | 0 | Specifies which pulse unit to use. `0` means use the first available pulse unit. Usually there is only one attached. | `pulse=2` |
+| pulse | pulse, scan | | | 0 | Specifies which pulse unit to use. `0` means use the first available pulse unit. Usually there is only one attached. | `pulse=2` |
 | simulation | scan, run, control | off | Specifies whether to use simulated hardware. | `simulation=on` |
-| waveform |
+| waveform | run, scan | | square | Sets the waveform |
+| compress | run | disabled | Compress or extend a program
+| loop | run, pulse | off | Whether to run the program in a loop |
+| iterations | run, pulse | 1 | Number of times to run the given command |
 
 
 # Files
