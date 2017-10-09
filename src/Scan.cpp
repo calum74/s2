@@ -34,7 +34,7 @@ int S2::Scan(const Options & options)
 {
 	Devices devices(options);
 	Pulse &pulse = devices.GetPulse(options.pulse);
-	pulse.Open();
+	pulse.Open(devices);
 
 	double previousValue = pulse.BPM();
 	for (;;)

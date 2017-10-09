@@ -2,16 +2,17 @@
 
 namespace S2
 {
-	std::shared_ptr<Stream> OpenPulse(const std::string &filename);
+	class Devices;
+	std::shared_ptr<Stream> OpenPulse(Devices&devices, const std::string &filename);
 
 	class Pulse : public Device
 	{
 	public:
-	Pulse(int id, const char * filename);
-	// Throws: IOError if device disconnected or fails.
-	// This is a blocking call.
-	double BPM();
-	void Open();
+		Pulse(int id, const std::string &filename);
+		// Throws: IOError if device disconnected or fails.
+		// This is a blocking call.
+		double BPM();
+		void Open(Devices&);
 	};
 
 	class DummyPulse : public Stream

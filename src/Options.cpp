@@ -56,7 +56,7 @@ S2::Options::Options(int argc, const char *argv[])
 	this->argc = argc;
 	this->argv = argv;
 	command = argv[1];
-	iterations = 1;
+	iterations = 0;
 	generator = 0;
 	pulse = 0;
 	channel = 0;

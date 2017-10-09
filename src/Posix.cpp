@@ -115,8 +115,3 @@ std::shared_ptr<S2::Stream> S2::OpenGenerator(const std::string &filename)
 	return std::make_shared<PosixStream>(fd);
 }
 
-std::shared_ptr<S2::Stream> S2::OpenPulse(const std::string &)
-{
-	return std::make_shared<S2::DummyPulse>();
-}
-

@@ -1,9 +1,6 @@
 #include "S2.h"
-#include <iostream>
-#include <iomanip>
 
 #include <IOKit/hid/IOHIDManager.h>
-#include <CoreFoundation/CFString.h>
 
 namespace MacOS
 {
@@ -20,18 +17,17 @@ namespace MacOS
 		long VendorId() const;
 		long LongProperty(CFStringRef) const;
 
-		void ScheduleWithRunLoop() const;
-		int Read(char * data, int length);
+		void StartRead(char * data, int length);
+		void StopRead() const;
 
 		virtual void OnInputReport(
-                IOReturn        inResult,           // completion result for the input report operation
-                IOHIDReportType inType,             // the report type
-                uint32_t        inReportID,         // the report ID
-                uint8_t *       buffer,           // pointer to the report data
+                IOReturn        inResult,       // completion result for the input report operation
+                IOHIDReportType inType,         // the report type
+                uint32_t        inReportID,     // the report ID
+                uint8_t *       buffer,         // pointer to the report data
                 CFIndex         inReportLength, // the actual size of the input report
                 uint64_t 		timeStamp);
 
-		char buffer[64];
 		int readLength;
 	};
 
@@ -46,26 +42,75 @@ namespace MacOS
 		std::vector<HidDevice> devices;
 		IOHIDManagerRef hidMgr;
 	};
+
+	class PulseData : public S2::Stream
+	{
+	public:
+		PulseData(HidDevice d);
+		PulseData(const PulseData&)=delete;
+		~PulseData();
+	
+		int Read(char * buffer, int size);
+		int Write(const char * buffer, int size);
+	public:
+		HidDevice device;
+		char buffer[64];
+	};
 }
 
+class S2::Devices::Impl
+{
+public:
+	MacOS::HidManager hm;
+};
+
+MacOS::PulseData::PulseData(HidDevice d) : device(d)
+{
+	device.StartRead(buffer, sizeof(buffer));
+}
+
+MacOS::PulseData::~PulseData()
+{
+	device.StopRead();
+}
+
+int MacOS::PulseData::Read(char * output, int size)
+{
+	CFRunLoopRun();
+	if(size>5)
+	{
+		output[3] = buffer[2];
+		output[4] = buffer[3];
+		output[5] = buffer[4];
+	}
+	return std::min(size, 65);
+}
+
+int MacOS::PulseData::Write(const char *output, int size)
+{
+	throw std::logic_error("Writing to a pulse device");
+}
 
 S2::Devices::Devices(const Options & options)
 {
-	std::cout << "Probing devices\n";
-	generators.push_back(Generator(0, "/dev/cu.SLAB_USBtoUART"));
-
-	pulses.push_back(Pulse(0, ""));
-
-	MacOS::HidManager hm;
-	for(auto &device : hm.devices)
+	if(options.simulation)
 	{
+		generators.push_back(Generator(0,"Simulator"));
+		pulses.push_back(Pulse(0, "Simulator"));
+	}
+
+	// !! More than one ...
+	generators.push_back(Generator(1, "/dev/cu.SLAB_USBtoUART"));
+
+	impl = std::make_shared<Impl>();
+
+	int count=0;
+	for(auto &device : impl->hm.devices)
+	{
+		count++;
 		if(device.VendorId()==1602 && device.ProductId()==7)
 		{
-			std::cout << "Pulse found'\n";
-			device.ScheduleWithRunLoop();
-
-			char buffer[64];
-			device.Read(buffer,64);
+			pulses.push_back(Pulse(count, "pulse"));
 		}
 	}
 }
@@ -88,6 +133,7 @@ MacOS::HidManager::HidManager()
 	std::vector<IOHIDDeviceRef> deviceIds(count);
 	CFSetGetValues(deviceSet, (const void**)&deviceIds[0]);
 
+	// !! Exceptions
 	devices.reserve(count);
 	for(auto id : deviceIds)
 		devices.push_back(HidDevice(id));
@@ -129,12 +175,7 @@ long MacOS::HidDevice::LongProperty(CFStringRef name) const
     return outValue;
 }
 
-void MacOS::HidDevice::ScheduleWithRunLoop() const
-{
-	IOHIDDeviceScheduleWithRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-}
-
-static void Handle_IOHIDDeviceIOHIDReportCallback2(
+static void Handle_IOHIDDeviceIOHIDReportCallback(
                 void *          inContext,          // context from IOHIDDeviceRegisterInputReportCallback
                 IOReturn        inResult,           // completion result for the input report operation
                 void *          inSender,           // IOHIDDeviceRef of the device this report is from
@@ -144,7 +185,8 @@ static void Handle_IOHIDDeviceIOHIDReportCallback2(
                 CFIndex         inReportLength, // the actual size of the input report
                 uint64_t 		timeStamp)
 {
-	((MacOS::HidDevice*)inContext)->OnInputReport(inResult, inType, inReportID, buffer, inReportLength, timeStamp);
+	auto hd = (MacOS::HidDevice*)inContext;
+	hd->OnInputReport(inResult, inType, inReportID, buffer, inReportLength, timeStamp);
 }
 
 void MacOS::HidDevice::OnInputReport(
@@ -155,33 +197,32 @@ void MacOS::HidDevice::OnInputReport(
                 CFIndex         inReportLength, // the actual size of the input report
                 uint64_t 		timeStamp)
 {
-	const uint8_t * base = buffer+2;
-	unsigned value = (base[0] << 16) | (base[1] << 8) | base[2];
-
-	static uint64_t previousTimestamp;
-	auto tsDiff = timeStamp - previousTimestamp;
-	previousTimestamp = timeStamp;
-	double secondsDiff = tsDiff/1000000000.0;
-
-	double bpm = 60.0 / (double(value) / 250000.0);
-
-	std::cout << "Time stamp Bpm = " << 60.0/secondsDiff
-		<< ", device bpm = " << bpm << " bpm\n";
-
+	CFRunLoopStop(CFRunLoopGetCurrent());
 }
 
-int MacOS::HidDevice::Read(char * buffer, int length)
+void MacOS::HidDevice::StartRead(char * buffer, int length)
 {
+	IOHIDDeviceScheduleWithRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+
 	IOHIDDeviceRegisterInputReportWithTimeStampCallback
 	(
 		 deviceRef,
 		 (uint8_t*)buffer,
 		 length,
-		 Handle_IOHIDDeviceIOHIDReportCallback2,
+		 Handle_IOHIDDeviceIOHIDReportCallback,
 		 this);
+}
 
-	CFRunLoopRun();
+void MacOS::HidDevice::StopRead() const
+{
+	IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+}
 
-	 return 0;	// !!
+void S2::Pulse::Open(Devices&devices)
+{
+	if(id==0)
+		stream = std::make_shared<DummyPulse>();
+	else
+		stream = std::shared_ptr<MacOS::PulseData>(new MacOS::PulseData(devices.impl->hm.devices[id-1]));
 }
 

@@ -2,18 +2,13 @@
 #include "S2.h"
 #include <algorithm>
 
-S2::Pulse::Pulse(int id, const char * filename) : Device(id, filename)
+S2::Pulse::Pulse(int id, const std::string & filename) : Device(id, filename)
 {
-}
-
-void S2::Pulse::Open()
-{
-	stream = filename.empty() ? std::make_shared<DummyPulse>() : OpenPulse(filename.c_str());
 }
 
 double S2::Pulse::BPM()
 {
-	unsigned char buffer[1024];
+	unsigned char buffer[65];
 	if (stream->Read((char*)buffer, sizeof(buffer)) == 65)
 	{
 		unsigned value = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
