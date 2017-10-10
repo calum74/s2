@@ -34,7 +34,8 @@ int S2::StatusCommand(const Options&options)
 
 int S2::PulseCommand(const Options & options)
 {
-	bool loop = options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
+// options.iterations=0;
+	bool loop = false; options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
 	if (loop)
 	{
 		std::cout << "Reading pulse. Press Ctrl+C to stop.\n";
@@ -43,7 +44,7 @@ int S2::PulseCommand(const Options & options)
 	{
 		Devices devices(options);
 		Pulse &pulse = devices.GetPulse(options.pulse);
-		pulse.Open();
+		pulse.Open(devices);
 
 		for(int i=0; options.iterations==0 || i<options.iterations; ++i)
 		{

@@ -5,7 +5,7 @@ S2::Device::~Device()
 }
 
 
-S2::Device::Device(int id, const char * filename) : id(id), filename(filename)
+S2::Device::Device(int id, const std::string& filename) : id(id), filename(filename)
 {
 }
 

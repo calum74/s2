@@ -4,6 +4,13 @@
 
 namespace S2
 {
+	enum class DeviceStatus
+	{
+		Available,
+		InUse,
+		Error
+	};
+
 	class Stream
 	{
 	public:
@@ -19,7 +26,7 @@ namespace S2
 		std::string filename;
 
 		Device();
-		Device(int id, const char*);
+		Device(int id, const std::string&);
 		~Device();
 	protected:
 		std::shared_ptr<Stream> stream;

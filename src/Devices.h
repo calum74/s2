@@ -16,6 +16,10 @@ namespace S2
 		// Throws Device not FOund
 		Pulse & GetPulse(int id);
 		Generator & GetGenerator(int id);
+
+		// Opaque implementation, if needed
+		class Impl;
+		std::shared_ptr<Impl> impl;
 	};
 }
 
