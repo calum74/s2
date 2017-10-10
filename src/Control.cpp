@@ -48,7 +48,7 @@ public:
 	void Waveform(S2::BuiltinWaveform f)
 	{
 		const char * wavetext[] = { "sine", "square", "sawtooth", "hbomb" };
-		std::cout << "Setting generator " << generator << " channel " << channel << " to " << wavetext[f] << "\n";
+		std::cout << "Setting generator " << generator << " channel " << channel << " to " << wavetext[(int)f] << "\n";
 		GetChannel().Waveform(f);
 	}
 
@@ -132,7 +132,7 @@ int S2::Control(const Options & options)
 		options.Visit(controller);
 		return 0;
 	}
-	catch (const DeviceNotFound &f)
+	catch (const DeviceNotFound &)
 	{
 		std::cout << "Could not open generator " << options.generator << std::endl;
 		return 1;

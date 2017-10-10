@@ -1,5 +1,7 @@
 #pragma once
 #include <stdexcept>
+#include <iostream>
+#include <string>
 
 #include "Waveforms.h"
 #include "Options.h"
@@ -9,6 +11,7 @@
 #include "Devices.h"
 #include "Program.h"
 #include "Preset.h"
+#include "Database.h"
 
 namespace S2
 {

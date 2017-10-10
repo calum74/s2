@@ -1,6 +1,7 @@
-#include "Waveforms.h"
 #include <fstream>
 #include <iterator>
+
+#include "Waveforms.h"
 
 // Note: This was captured from the serial port
 

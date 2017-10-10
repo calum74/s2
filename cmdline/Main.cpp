@@ -78,26 +78,26 @@ int S2::Main(int argc, const char *argv[])
 	try
 	{
 		Options options(argc, argv);
-		const char * command = options.command;
+		std::string command = options.command;
 
-		if (strcmp(command, "status") == 0)
+		if (command=="status")
 			return StatusCommand(options);
-		else if (strcmp(command, "pulse") == 0)
+		else if (command=="pulse")
 			return PulseCommand(options);
-		else if (strcmp(command, "diagnose") == 0)
+		else if (command=="diagnose")
 			Diagnose();
-		else if (strcmp(command, "scan") == 0)
+		else if (command== "scan")
 			return Scan(options);
-		else if (strcmp(command, "control") == 0)
+		else if (command== "control")
 			return Control(options);
-		else if (strcmp(command, "help") == 0)
+		else if (command== "help")
 			PrintHelp();
-		else if (strcmp(command, "set") == 0)
+		else if (command== "set")
 			Set(options);
-		else if (strcmp(command, "run") == 0)
+		else if (command=="run")
 			Run(options);
 		else
-			throw InvalidCommandLineArgument(command);
+			throw InvalidCommandLineArgument(options.command);
 
 		return 0;
 	}

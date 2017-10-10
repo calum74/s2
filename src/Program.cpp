@@ -17,7 +17,7 @@ S2::Program::Program(const std::string & text)
 double S2::Program::TotalDuration() const
 {
 	double s = 0.0;
-	for (int i = 0; i < steps.size(); ++i)
+	for (unsigned i = 0; i < steps.size(); ++i)
 		s += StepDuration(i);
 	return s;
 }
@@ -32,7 +32,7 @@ double S2::Program::StepDuration(int n) const
 	return steps[n].duration;
 }
 
-S2::Step::Step(const char *s)
+S2::ProgramStep::ProgramStep(const char *s)
 {
 	auto eq = strchr(s, '=');
 	auto dash = strchr(s, '-');

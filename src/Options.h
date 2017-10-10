@@ -16,9 +16,10 @@ namespace S2
 		ValueOutOfRange(const char * option);
 	};
 
-	enum BuiltinWaveform
+	class InvalidUnit : public InvalidCommandLineArgument
 	{
-		sine, square, sawtooth
+	public:
+		InvalidUnit(const char * option);
 	};
 
 	class OptionsVisitor

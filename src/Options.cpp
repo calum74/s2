@@ -51,6 +51,10 @@ S2::InvalidCommandLineArgument::InvalidCommandLineArgument(const char * option) 
 {
 }
 
+S2::InvalidUnit::InvalidUnit(const char * option) : InvalidCommandLineArgument(option)
+{
+}
+
 S2::Options::Options(int argc, const char *argv[])
 {
 	this->argc = argc;
@@ -112,7 +116,12 @@ bool S2::OptionsVisitor::parseInt(const char * option, const char * variable, in
 	int len = strlen(variable);
 	if (strncmp(option, variable, len) == 0 && option[len]=='=')
 	{
-		output = atoi(option + len + 1);
+		char *e;
+		output = std::strtol(option + len + 1, &e, 10);
+		if (e == option + len + 1)
+			throw S2::InvalidCommandLineArgument(option);
+		if (*e != 0)
+			throw S2::InvalidUnit(option);
 		if (output<min || output>max)
 			throw ValueOutOfRange(option);
 		return true;
@@ -120,36 +129,43 @@ bool S2::OptionsVisitor::parseInt(const char * option, const char * variable, in
 	return false;
 }
 
-bool S2::OptionsVisitor::parseSuffix(const char * option, const char * variable, const char * suffixOpt, double min, double max, double & output)
+bool S2::OptionsVisitor::parseSuffix(const char * option, const char * variable, const char * suffix, double min, double max, double & output)
 {
 	int len = strlen(variable);
-	int suffixLen = strlen(suffixOpt);
+	int suffixLen = strlen(suffix);
+
 	if(strncmp(option, variable, len)==0 && option[len]=='=')
 	{
 		output = atof(option + len + 1);
+		char * e;
+		output = std::strtod(option + len + 1, &e);
 
-		const char * end = option + strlen(option);
-		const char * unitStart = end;
-		for (; unitStart > option && isalpha(unitStart[-1]); --unitStart)
-			;
-		if (unitStart < end)
+		if (e == option + len + 1)
+			throw InvalidCommandLineArgument(option);
+
+		switch (*e)
 		{
-			switch (*unitStart)
-			{
-			case 'k':
-				output *= 1000.0;
-				break;
-			case 'M':
-				output *= 1000000.0;
-				break;
-			case 'm':
-				output *= 0.001;
-				break;
-			case 'u':
-				output *= 0.000001;
-				break;
-			}
+		case 'k':
+			output *= 1000.0;
+			e++;
+			break;
+		case 'M':
+			output *= 1000000.0;
+			e++;
+			break;
+		case 'm':
+			output *= 0.001;
+			e++;
+			break;
+		case 'u':
+			output *= 0.000001;
+			e++;
+			break;
 		}
+
+		if (strcmp(e, suffix) != 0)
+			throw InvalidUnit(option);
+		
 		if (output<min || output>max)
 			throw ValueOutOfRange(option);
 		return true;

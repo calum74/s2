@@ -50,3 +50,17 @@ const std::string & S2::Preset::GetProgramDescription(int n) const
 		;
 	return i->second;
 }
+
+void S2::Preset::GetStep(double time, OutputStep &s) const
+{
+}
+
+double S2::Preset::Duration() const
+{
+	return 0.0;
+}
+
+std::string S2::Preset::Description() const
+{
+	return "!!";
+}

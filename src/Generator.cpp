@@ -103,7 +103,7 @@ void S2::Generator::Offset(int channel, double p)
 
 void S2::Generator::Waveform(int channel, BuiltinWaveform f)
 {
-	Send(set_waveform_1, channel, f);
+	Send(set_waveform_1, channel, (int)f);
 }
 
 void S2::Generator::Waveform(int channel, const WaveData & data)
