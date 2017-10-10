@@ -12,6 +12,7 @@
 #include "Program.h"
 #include "Preset.h"
 #include "Database.h"
+#include "ProgressMonitor.h"
 
 namespace S2
 {
@@ -27,13 +28,13 @@ namespace S2
 		DeviceNotFound();
 	};
 
-	int PulseCommand(const Options&);
-	int StatusCommand(const Options&);
+	int PulseCommand(const Options&, ProgressMonitor &pm, StreamFactory &sf);
+	int StatusCommand(const Options&, ProgressMonitor &pm, StreamFactory &sf);
 	int Main(int argc, const char*argv[]);
 	void PrintHelp();
 	void Diagnose();
-	int Scan(const Options & options);
-	int Control(const Options & options);
+	int Scan(const Options & options, ProgressMonitor &pm, StreamFactory &sf);
+	int Control(const Options & options, ProgressMonitor &pm, StreamFactory &sf);
 	void Sleep(double seconds);
 	int Send(const char * sendString);
 	int Set(const Options & options);

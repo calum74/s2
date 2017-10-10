@@ -4,8 +4,6 @@ namespace S2
 {
 	class Generator;
 
-	std::shared_ptr<Stream> OpenGenerator(const std::string &name);
-
 	enum GeneratorStatus
 	{
 		Available,
@@ -85,7 +83,7 @@ namespace S2
 		friend InvertAndSync;
 
 
-		void Open();
+		void Open(Devices&, StreamFactory&);
 		// bool Verbose(bool b); // Change verbose mode
 
 		void Send(const char * buffer);

@@ -4,12 +4,15 @@
 // !! Move to header file
 class Controller : public S2::OptionsVisitor
 {
+	S2::ProgressMonitor &pm;
+	S2::StreamFactory & sf;
 public:
-	Controller(const S2::Options &o) : devices(o)
+	Controller(const S2::Options &o, S2::ProgressMonitor &pm, S2::StreamFactory &sf) :
+		devices(o), pm(pm), sf(sf)
 	{
 		generator = o.generator;
 		channel = o.channel;
-		devices.GetGenerator(generator).Open();
+		devices.GetGenerator(generator).Open(devices, sf);
 	}
 
 	void Verbose(bool b)
@@ -124,11 +127,11 @@ private:
 	S2::Devices devices;
 };
 
-int S2::Control(const Options & options)
+int S2::Control(const Options & options, ProgressMonitor &pm, StreamFactory &sf)
 {
 	try
 	{
-		Controller controller(options);
+		Controller controller(options, pm, sf);
 		options.Visit(controller);
 		return 0;
 	}

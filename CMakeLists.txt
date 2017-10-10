@@ -29,6 +29,8 @@ add_library(s2core STATIC
 	src/Preset.h
 	src/Program.h
 	src/Program.cpp
+	src/ProgressMonitor.h
+	src/ProgressMonitor.cpp
 	src/Pulse.cpp
 	src/Pulse.h
 	src/RunCommand.cpp

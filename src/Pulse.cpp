@@ -20,6 +20,11 @@ double S2::Pulse::BPM()
 	}
 }
 
+void S2::Pulse::Open(Devices&devices, StreamFactory & sf)
+{
+	stream = sf.Open(devices, *this);
+}
+
 int S2::DummyPulse::Read(char * buffer, int size)
 {
 	if (size > 5)

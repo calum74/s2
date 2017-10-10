@@ -157,9 +157,10 @@ void S2::Generator::Send(const char * buffer)
 
 }
 
-void S2::Generator::Open()
+void S2::Generator::Open(Devices & devices, StreamFactory &sf)
 {
-	stream = filename.empty() ? std::make_shared<DummyGenerator>(true) : OpenGenerator(filename);
+	stream = sf.Open(devices, *this);
+	// stream = filename.empty() ? std::make_shared<DummyGenerator>(true) : OpenGenerator(filename);
 }
 
 S2::Stream::~Stream()

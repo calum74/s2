@@ -30,11 +30,11 @@ spike
 
 */
 
-int S2::Scan(const Options & options)
+int S2::Scan(const Options & options, ProgressMonitor & pm, StreamFactory &sf)
 {
 	Devices devices(options);
 	Pulse &pulse = devices.GetPulse(options.pulse);
-	pulse.Open(devices);
+	pulse.Open(devices, sf);
 
 	double previousValue = pulse.BPM();
 	for (;;)

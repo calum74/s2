@@ -7,7 +7,7 @@
 #include <cstring>
 
 
-int S2::StatusCommand(const Options&options)
+int S2::StatusCommand(const Options&options, ProgressMonitor &pm, StreamFactory &sf)
 {
 	Devices devices(options);
 
@@ -32,7 +32,7 @@ int S2::StatusCommand(const Options&options)
 	return 0;
 }
 
-int S2::PulseCommand(const Options & options)
+int S2::PulseCommand(const Options & options, ProgressMonitor &pm, StreamFactory &sf)
 {
 // options.iterations=0;
 	bool loop = false; options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
@@ -44,7 +44,7 @@ int S2::PulseCommand(const Options & options)
 	{
 		Devices devices(options);
 		Pulse &pulse = devices.GetPulse(options.pulse);
-		pulse.Open(devices);
+		pulse.Open(devices, sf);
 
 		for(int i=0; options.iterations==0 || i<options.iterations; ++i)
 		{
@@ -80,17 +80,19 @@ int S2::Main(int argc, const char *argv[])
 	{
 		Options options(argc, argv);
 		std::string command = options.command;
+		DefaultStreamFactory sf;
+		DefaultProgressMonitor pm(std::cout);
 
 		if (command=="status")
-			return StatusCommand(options);
+			return StatusCommand(options, pm, sf);
 		else if (command=="pulse")
-			return PulseCommand(options);
+			return PulseCommand(options, pm, sf);
 		else if (command=="diagnose")
 			Diagnose();
 		else if (command== "scan")
-			return Scan(options);
+			return Scan(options, pm, sf);
 		else if (command== "control")
-			return Control(options);
+			return Control(options, pm, sf);
 		else if (command== "help")
 			PrintHelp();
 		else if (command== "set")

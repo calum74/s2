@@ -97,8 +97,13 @@ void set_mincount(int fd, int mcount)
         printf("Error tcsetattr: %s\n", strerror(errno));
 }
 
-std::shared_ptr<S2::Stream> S2::OpenGenerator(const std::string &filename)
+std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices &devices, Generator & generator)
 {
+	if(generator.id==0)
+		return std::make_shared<DummyGenerator>(true);
+
+	auto filename = generator.filename;
+
 	int fd = open(filename.c_str(), O_EXCL|O_RDWR|O_NOCTTY|O_SYNC);
 
 	int error = errno;

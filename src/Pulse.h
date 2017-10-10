@@ -3,7 +3,6 @@
 namespace S2
 {
 	class Devices;
-	std::shared_ptr<Stream> OpenPulse(Devices&devices, const std::string &filename);
 
 	class Pulse : public Device
 	{
@@ -12,7 +11,7 @@ namespace S2
 		// Throws: IOError if device disconnected or fails.
 		// This is a blocking call.
 		double BPM();
-		void Open(Devices&);
+		void Open(Devices&, StreamFactory&sf);
 	};
 
 	class DummyPulse : public Stream

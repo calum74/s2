@@ -119,6 +119,11 @@ void testOptions()
 
 	{
 		const char * args[] = { "s2", "control", "channel=1" };
+		S2::Options options(2, args);
+		assert(options.channel == 0);
+	}
+	{
+		const char * args[] = { "s2", "control", "channel=1" };
 		S2::Options options(3, args);
 		assert(options.channel == 1);
 	}
@@ -153,9 +158,30 @@ void testOptions()
 		S2::Options options(3, args);
 	});
 
+	{
+		const char * args[] = { "s2", "control", "generator=3" };
+		S2::Options options(2, args);
+		assert(options.generator == 0);
+	}
+
+	assert_throws<S2::ValueOutOfRange>([]
+	{
+		const char * args[] = { "s2", "control", "generator=-1" };
+		S2::Options options(3, args);
+	});
+
+	assert_throws<S2::InvalidUnit>([]
+	{
+		const char * args[] = { "s2", "control", "generator=1d" };
+		S2::Options options(3, args);
+	});
+
+	{
+		const char * args[] = { "s2", "control", "generator=3" };
+		S2::Options options(3, args);
+		assert(options.generator == 3);
+	}
+
 
 	// !! Waveform tests
-
-
-	// !! Generator tests
 }

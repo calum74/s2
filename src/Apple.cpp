@@ -1,6 +1,7 @@
 #include "S2.h"
 
 #include <IOKit/hid/IOHIDManager.h>
+#include <iostream>
 
 namespace MacOS
 {
@@ -218,11 +219,11 @@ void MacOS::HidDevice::StopRead() const
 	IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 }
 
-void S2::Pulse::Open(Devices&devices)
+std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices & devices, Pulse &p)
 {
-	if(id==0)
-		stream = std::make_shared<DummyPulse>();
+	if(p.id==0)
+		return std::make_shared<DummyPulse>();
 	else
-		stream = std::shared_ptr<MacOS::PulseData>(new MacOS::PulseData(devices.impl->hm.devices[id-1]));
+		return std::shared_ptr<MacOS::PulseData>(new MacOS::PulseData(devices.impl->hm.devices[p.id-1]));
 }
 
