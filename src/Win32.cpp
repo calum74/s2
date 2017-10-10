@@ -24,7 +24,7 @@ namespace S2
 	};
 }
 
-std::shared_ptr<S2::Stream> S2::OpenPulse(const std::string & filename)
+std::shared_ptr<S2::Stream> S2::OpenPulse(Devices &, const std::string & filename)
 {
 	auto handle = CreateFileA(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -138,4 +138,7 @@ S2::Win32Stream::~Win32Stream()
 	CloseHandle(file);
 }
 
-
+void S2::Pulse::Open(Devices &devices)
+{
+	stream = OpenPulse(devices, filename);
+}
