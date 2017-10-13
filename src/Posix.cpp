@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+#include <string.h>
 
 namespace S2
 {

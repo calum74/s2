@@ -2,58 +2,75 @@
 
 namespace S2
 {
-	class ProgressMonitor;
-
+	// The desired state
 	struct OutputState
 	{
+		bool output;	// Whether the output is on or off
+
 		// NaN means unknown
 		double amplitudeV, frequencyHz;
 
 		BuiltinWaveform waveform;
 		WaveData wavedata; // Only if waveform==custom
-	};
-
-	struct OutputStep
-	{
-		std::string programName, itemName;
-
-		OutputState state;
 
 		double stepDuration;
 	};
 
 
-	// Any preset or program.
-	class Runnable
+	// A sequence of commands
+	class Sequence
 	{
+		// What is the total duration of this sequence
 		virtual double Duration() const = 0;
-		virtual std::string Description() const = 0;
 
-		virtual void GetStep(double time, OutputStep &step) const=0;
-
-		void Run(Channel & channel, ProgressMonitor & pm, double startAt = 0.0) const;
+		// Gets the state at a particular timepoint.
+		virtual void GetState(double time, OutputState & state) const = 0;
 	};
 
-	class ProgramStep
+	class RunSequence
+	{
+	public:
+		RunSequence(Sequence & seq, Channel & channel);
+
+		OutputState current;
+
+	private:
+		const Sequence & sequence;
+		Channel & channel;
+	};
+
+	class ProgressMonitor;
+
+	class Scheduler
+	{
+	public:
+		void Add(const Sequence & seq, Channel & channel, bool loop, double offset);
+		void Run(const Options & options, ProgressMonitor &pm);
+	private:
+		std::vector<RunSequence> sequences;
+	};
+
+	class ProgramStep : public Sequence
 	{
 	public:
 		ProgramStep(const char * str);
 		double f1, f2, duration;
+
+		double Duration() const;
+		void GetState(double time, OutputState & state) const;
 	};
 
-	class Program
+	class Program : public Sequence
 	{
 	public:
+		Program(const std::string & name, const std::string & code);
 		Program(const std::string & program);
 
-		void Run(const Options & options, Channel &c);
-
-		double TotalDuration() const;
-		int TotalSteps() const;
-		double StepDuration(int s) const;
-		double StepFrequency(int s) const;
+		double Duration() const;
+		void GetState(double time, OutputState & state) const;
 	private:
-		std::string program;
+		void Initialize(const std::string&);
+		std::string name, program;
 		std::vector<ProgramStep> steps;
 	};
 }

@@ -1,16 +1,12 @@
 #include "S2.h"
 #include <iostream>
 #include <string>
+#include <fstream>
 
 void RunProgram(const std::string &desc, const std::string &p)
 {
 	S2::Program program(p);
-	std::cout << "Running " << desc << " for " << program.TotalDuration() << "s\n"; // std::endl;
-
-	for (int i = 0; i < program.TotalSteps(); ++i)
-	{
-		std::cout << "  Running step " << (i + 1) << "/" << program.TotalSteps() << " for " << program.StepDuration(i) << "s\n";
-	}
+	std::cout << "Running " << desc << " for " << program.Duration() << "s\n"; // std::endl;
 }
 
 int S2::Run(const Options & options)
@@ -18,7 +14,8 @@ int S2::Run(const Options & options)
 	try
 	{
 		// !!
-		Preset preset(options.preset);
+		std::ifstream file(options.preset);
+		Preset preset(file);
 		int n = preset.NumberOfPrograms();
 		for(int i=0; i<n; ++i)
 		{

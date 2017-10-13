@@ -35,7 +35,7 @@ int S2::StatusCommand(const Options&options, ProgressMonitor &pm, StreamFactory 
 int S2::PulseCommand(const Options & options, ProgressMonitor &pm, StreamFactory &sf)
 {
 // options.iterations=0;
-	bool loop = false; options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
+	bool loop = false; // options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
 	if (loop)
 	{
 		std::cout << "Reading pulse. Press Ctrl+C to stop.\n";

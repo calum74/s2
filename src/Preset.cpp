@@ -3,9 +3,8 @@
 #include <iostream>
 #include <string>
 
-S2::Preset::Preset(const std::string & path)
+S2::Preset::Preset(std::istream & contents)
 {
-	std::ifstream contents(path);
 	if (!contents)
 		throw IOError("Cannot load preset");
 
@@ -14,7 +13,7 @@ S2::Preset::Preset(const std::string & path)
 	{
 		bool startsWithQuote = line[0] == '\"';
 		bool endsWithQuote = line.back() == '\"';
-		while (!endsWithQuote)
+		while (startsWithQuote && !endsWithQuote)
 		{
 			std::string nextLine;
 			if (!std::getline(contents, nextLine))
@@ -27,6 +26,14 @@ S2::Preset::Preset(const std::string & path)
 		std::string key = line.substr(1, eq - 1);
 		std::string value = line.substr(eq+1, line.length() - eq - 2);
 		entries.insert(std::make_pair(key, value));
+	}
+
+	// Construct programs.
+	for(auto code = entries.lower_bound("List4"), description = entries.lower_bound("List2");
+		code != entries.upper_bound("List4") && description != entries.upper_bound("List2");
+			++code, ++description)
+	{
+		programs.push_back(Program(description->second, code->second));
 	}
 }
 
@@ -51,16 +58,19 @@ const std::string & S2::Preset::GetProgramDescription(int n) const
 	return i->second;
 }
 
-void S2::Preset::GetStep(double time, OutputStep &s) const
-{
-}
-
 double S2::Preset::Duration() const
 {
-	return 0.0;
+	double d = 0.0;
+	for(auto & p : programs)
+		d += p.Duration();
+	return d;
 }
 
 std::string S2::Preset::Description() const
 {
 	return "!!";
+}
+
+void S2::Preset::GetState(double d, OutputState &s) const
+{
 }

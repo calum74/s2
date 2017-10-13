@@ -24,9 +24,9 @@ namespace S2
 	};
 }
 
-std::shared_ptr<S2::Stream> S2::OpenPulse(Devices &, const std::string & filename)
+std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices &, Pulse &p)
 {
-	auto handle = CreateFileA(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	auto handle = CreateFileA(p.filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		throw DeviceNotFound();
@@ -109,9 +109,9 @@ void S2::Sleep(double s)
 	::Sleep(int(1000*s));
 }
 
-std::shared_ptr<S2::Stream> S2::OpenGenerator(const std::string & filename)
+std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices &d, Generator & generator)
 {
-	auto handle = CreateFileA(filename.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	auto handle = CreateFileA(generator.filename.c_str(), GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		throw DeviceNotFound();
@@ -138,7 +138,3 @@ S2::Win32Stream::~Win32Stream()
 	CloseHandle(file);
 }
 
-void S2::Pulse::Open(Devices &devices)
-{
-	stream = OpenPulse(devices, filename);
-}

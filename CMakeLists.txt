@@ -18,6 +18,8 @@ endif()
 
 add_library(s2core STATIC
 	src/Control.cpp
+	src/Database.h
+	src/Database.cpp
 	src/Devices.h
 	src/Devices.cpp
 	src/Device.h
@@ -52,6 +54,7 @@ install (TARGETS s2 DESTINATION bin)
 add_executable(unittests 
 	tests/Tests.cpp
 	tests/Options.cpp
+	tests/Tests.h
 	)
 
 target_link_libraries(unittests s2core)

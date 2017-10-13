@@ -1,24 +1,8 @@
 
-#include "S2.h"
+#include "Tests.h"
 #include <cassert>
 #include <functional>
 
-template<typename T>
-void assert_throws(std::function<void()> t)
-{
-	try
-	{
-		t();
-		assert(!"Failed to throw exception");
-	}
-	catch (T&)
-	{
-	}
-	catch (std::exception&)
-	{
-		assert(!"Threw wrong exception");
-	}
-}
 
 void testOptions()
 {
@@ -74,7 +58,6 @@ void testOptions()
 		const char * args[] = { "s2", "control", "amplitude=" };
 		S2::Options options(3, args); });
 
-	// !! Frequency tests
 	{
 		const char * args[] = { "s2", "control", "frequency=1Hz" };
 		S2::Options options(3, args);

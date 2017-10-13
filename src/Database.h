@@ -2,22 +2,22 @@
 
 namespace S2
 {
-	class Code : public Runnable
+	class Code : public Sequence
 	{
 		std::string code;
+		double Duration() const;
+		void GetState(double time, OutputState & state) const;
 	};
 
 	struct DatabaseProgram : Code
 	{
+	public:
+		DatabaseProgram(const std::string & row);
 		std::string name;
 		std::string description;
 		double stepSize;
-	};
 
-	struct Frequency
-	{
-		double lowerBound, upperBound;
-		int entry;
+		std::string Description() const;
 	};
 
 	class Database
@@ -26,13 +26,16 @@ namespace S2
 		Database();
 
 		// Read in all of the columns
-		void Read(const std::string & filename);
+		void Read(std::istream &file);
 		void Index();
 
 		std::vector<DatabaseProgram> programs;
-		std::vector<Frequency> lowerBound, upperBound;
 		std::map<std::string, int> programsByName;
+		std::map<double, int> lowerBound, upperBound;
 
-		Runnable & GetProgram(const std::string & programName);
+		Program & GetProgram(const std::string & programName);
+
+		// Query
+		void AddRow(const std::string & row);
 	};
 }

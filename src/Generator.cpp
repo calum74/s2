@@ -138,7 +138,7 @@ void S2::Generator::Send(const char * buffer)
 	// verbose = true;
 	if(verbose)
 		std::cout << buffer;
-	int len = strlen(buffer) + 1;
+	int len = strlen(buffer);
 	int written = stream->Write(buffer, len);
 	char returnBuffer[20];
 	int bytes; //  = Read(returnBuffer, 4);
