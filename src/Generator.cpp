@@ -47,6 +47,14 @@ S2::Generator::Generator(const Generator & src) :
 	frequencyScaling[0] = frequencyScaling[1] = FrequencyScale::Unknown;
 }
 
+S2::Generator& S2::Generator::operator=(const Generator & src)
+{
+	*(Device*)this = src;
+	frequencyScaling[0] = src.frequencyScaling[0];
+	frequencyScaling[1] = src.frequencyScaling[1];
+	return *this;
+}
+
 void S2::Generator::Send(int command, int channel, int value)
 {
 	if (channel < 0 || channel>1)

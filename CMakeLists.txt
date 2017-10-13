@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 2.6)
 project(s2)
 
-set(CMAKE_CXX_STANDARD 11) # C++11...
-set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
-set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
+if(CMAKE_VERSION VERSION_LESS "3.1")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+  endif()
+else()
+  set(CMAKE_CXX_STANDARD 11)
+endif()
+
+# set(CMAKE_CXX_STANDARD 11) # C++11...
+# set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
+# set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
 
 if(WIN32)
 	set(PLATFORM_CPP src/Win32.cpp)

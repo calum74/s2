@@ -74,13 +74,14 @@ namespace S2
 	public:
 		Generator(int id, const char * filename);
 		Generator(const Generator & other);
+		Generator & operator=(const Generator & other);
 
 		Channel & GetChannel(int c);
 
 		GeneratorStatus GetStatus();
 
-		friend SingleChannel;
-		friend InvertAndSync;
+		friend class SingleChannel;
+		friend class InvertAndSync;
 
 
 		void Open(Devices&, StreamFactory&);
