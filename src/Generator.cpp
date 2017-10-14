@@ -25,7 +25,7 @@ enum Commands
 	set_sync = 68	// Channel 2 copies freq from Channel 1 e.g. :w681 set sync on
 };
 
-S2::Generator::Generator(int id, const char * filename) :
+S2::Generator::Generator(int id, const std::string &filename) :
 	Device(id, filename),
 	channel0(*this),
 	channel1(*this, 0),

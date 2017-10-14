@@ -100,8 +100,7 @@ S2::Devices::Devices(const Options & options)
 		pulses.push_back(Pulse(0, "Simulator"));
 	}
 
-	// !! More than one ...
-	generators.push_back(Generator(1, "/dev/cu.SLAB_USBtoUART"));
+	FindDevices();
 
 	impl = std::make_shared<Impl>();
 
@@ -115,6 +114,8 @@ S2::Devices::Devices(const Options & options)
 		}
 	}
 }
+
+
 
 MacOS::HidManager::HidManager()
 {

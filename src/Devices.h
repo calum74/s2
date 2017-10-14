@@ -20,6 +20,9 @@ namespace S2
 		// Opaque implementation, if needed
 		class Impl;
 		std::shared_ptr<Impl> impl;
+
+	private:
+		void FindDevices();
 	};
 }
 

@@ -72,7 +72,7 @@ namespace S2
 	class Generator : public Device
 	{
 	public:
-		Generator(int id, const char * filename);
+		Generator(int id, const std::string & filename);
 		Generator(const Generator & other);
 		Generator & operator=(const Generator & other);
 

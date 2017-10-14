@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <termios.h>
 #include <string.h>
+#include <dirent.h>
 
 namespace S2
 {
@@ -120,4 +121,61 @@ std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices &devices, Gen
 
 	return std::make_shared<PosixStream>(fd);
 }
+
+namespace Posix
+{
+	class Dir
+	{
+	public:
+		Dir(const char * filename);
+		~Dir();
+		bool Next();
+		const char * Filename() const;
+		bool StartsWith(const char * pattern) const;
+	private:
+		DIR * dir;
+		dirent * current;
+	};
+}
+
+Posix::Dir::Dir(const char * filename)
+{
+	dir = opendir(filename);
+}
+
+Posix::Dir::~Dir()
+{
+	closedir(dir);
+}
+
+bool Posix::Dir::Next()
+{
+	current = readdir(dir);
+	return current != nullptr;
+}
+
+const char * Posix::Dir::Filename() const
+{
+	return current->d_name;
+}
+
+bool Posix::Dir::StartsWith(const char * pattern) const
+{
+	return strncmp(Filename(),pattern,strlen(pattern))==0;
+}
+
+void S2::Devices::FindDevices()
+{
+	int generator=1, pulse=1;
+	for(Posix::Dir dir("/dev"); dir.Next();)
+	{
+		if(dir.StartsWith("cu.SLAB_USBtoUART")||dir.StartsWith("ttyUSB"))
+			generators.push_back(S2::Generator(generator++, std::string("/dev/") + dir.Filename()));
+
+		if(dir.StartsWith("hidraw"))
+			pulses.push_back(S2::Pulse(pulse++, std::string("/dev/") + dir.Filename()));
+	}
+}
+
+
 
