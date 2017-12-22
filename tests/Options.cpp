@@ -143,8 +143,8 @@ void testOptions()
 
 	{
 		const char * args[] = { "s2", "control", "generator=3" };
-		S2::Options options(2, args);
-		assert(options.generator == 0);
+		S2::Options options(3, args);
+		assert(options.generator == 3);
 	}
 
 	assert_throws<S2::ValueOutOfRange>([]

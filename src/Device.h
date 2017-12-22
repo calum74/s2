@@ -8,6 +8,8 @@ namespace S2
 	class Pulse;
 	class Generator;
 
+	extern const char * simulation;
+
 	enum class DeviceStatus
 	{
 		Available,
@@ -47,6 +49,8 @@ namespace S2
 		Device();
 		Device(int id, const std::string&);
 		~Device();
+
+		bool Simulation() const;
 	protected:
 		std::shared_ptr<Stream> stream;
 	};

@@ -5,6 +5,7 @@
 #include <termios.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 namespace S2
 {
@@ -101,7 +102,7 @@ void set_mincount(int fd, int mcount)
 
 std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices &devices, Generator & generator)
 {
-	if(generator.id==0)
+	if(generator.Simulation())
 		return std::make_shared<DummyGenerator>(true);
 
 	auto filename = generator.filename;
@@ -177,5 +178,22 @@ void S2::Devices::FindDevices()
 	}
 }
 
+std::string S2::Options::DataDirectory() const
+{
+	char * home = getenv("HOME");
+	if(home==nullptr)
+		throw IOError("$HOME not set");
+
+	mode_t mask = umask(0);
+	umask(mask);
+	std::string dir = home + std::string("/.s2");
+	mkdir(dir.c_str(), 0777-mask);
+	return dir;
+}
+
+std::string S2::Options::DataFile(const char * filename) const
+{
+	return dataDir + "/" + filename;
+}
 
 

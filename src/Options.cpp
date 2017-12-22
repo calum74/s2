@@ -55,7 +55,7 @@ S2::InvalidUnit::InvalidUnit(const char * option) : InvalidCommandLineArgument(o
 {
 }
 
-S2::Options::Options(int argc, const char *argv[])
+S2::Options::Options(int argc, const char *argv[]) : dataDir(DataDirectory())
 {
 	this->argc = argc;
 	this->argv = argv;
@@ -65,9 +65,12 @@ S2::Options::Options(int argc, const char *argv[])
 	pulse = 0;
 	channel = 0;
 	simulation = false;
+	verbosity=Normal;
+	loop = true;
+	iterations = 1;
 
 	frequency = std::nan("");
-	amplitude = std::nan("");
+	amplitude = 10.0;
 
 	Visit(*this);
 }
@@ -75,7 +78,8 @@ S2::Options::Options(int argc, const char *argv[])
 void S2::Options::Visit(OptionsVisitor&visitor) const
 {
 	// Visit the command line
-	std::ifstream file1("s2.config");
+	auto name = DataFile("settings.txt");
+	std::ifstream file1(name);
 	if (file1) VisitFile(file1, visitor);
 
 	for (int i = 2; i < argc; ++i)
@@ -101,7 +105,8 @@ void S2::Options::VisitFile(std::istream & file, OptionsVisitor & visitor) const
 
 void S2::Options::SaveOptions() const
 {
-	std::ofstream file("s2.config");
+	auto name = DataFile("settings.txt");
+	std::ofstream file(name);
 	SaveOptions(file);
 }
 
@@ -205,9 +210,9 @@ bool S2::OptionsVisitor::parseBool(const char * option, const char * variable, b
 	if (strncmp(option, variable, len) == 0 && option[len] == '=')
 	{
 		const char * value = option + len + 1;
-		if (strcmp(value, "yes") == 0 || strcmp(value, "on") == 0 || strcmp(value, "1") == 0)
+		if (strcmp(value, "true") == 0 || strcmp(value, "yes") == 0 || strcmp(value, "on") == 0 || strcmp(value, "1") == 0)
 			output = true;
-		else if (strcmp(value, "no") == 0 || strcmp(value, "off") == 0 || strcmp(value, "0") == 0)
+		else if (strcmp(value, "false") == 0 || strcmp(value, "no") == 0 || strcmp(value, "off") == 0 || strcmp(value, "0") == 0)
 			output = false;
 		else
 			throw InvalidCommandLineArgument(option);
@@ -317,6 +322,18 @@ void S2::OptionsVisitor::OnOption(const char * option)
 		Preset(str);
 	else if (parseBool(option, "simulation", b))
 		Simulation(b);
+	else if(parseString(option, "name", str))
+		Name(str);
+	else if(parseInt(option, "program", 1, 100000, i))
+		Program(i);
+	else if(parseString(option, "code", str))
+		Code(str);
+	else if(parseInt(option, "verbosity", 0, 5, i))
+		Verbosity((S2::Verbosity)i);
+	else if(parseBool(option, "loop", b))
+		Loop(b);
+	else if(parseInt(option, "iterations", 1, 1000000, i))
+		Iterations(i);
 	else
 		UnrecognisedOption(option);
 }
@@ -332,11 +349,6 @@ void S2::Options::Waveform(const WaveData&)
 void S2::Options::UnrecognisedOption(const char*option)
 {
 	throw InvalidCommandLineArgument(option);
-}
-
-void S2::Options::Verbose(bool v)
-{
-	verbose = v;
 }
 
 void S2::Options::Output(bool b)
@@ -406,3 +418,84 @@ void S2::Options::Simulation(bool b)
 {
 	simulation = b;
 }
+
+void S2::Options::Verbosity(S2::Verbosity v)
+{
+	verbosity = v;
+}
+
+void S2::Options::Loop(bool b)
+{
+	loop = b;
+}
+
+void S2::Options::Iterations(int i)
+{
+	iterations = i;
+	loop = false;
+}
+
+void S2::OptionsVisitor::Duration(double seconds)
+{
+}
+
+void S2::OptionsVisitor::UnrecognisedOption(const char * option)
+{
+}
+
+void S2::OptionsVisitor::Generator(int generator)
+{
+}
+
+void S2::OptionsVisitor::Channel(int channel)
+{
+}
+
+void S2::OptionsVisitor::Pulse(int id)
+{
+}
+
+void S2::OptionsVisitor::Amplitude(double a)
+{
+}
+
+void S2::OptionsVisitor::Frequency(double frequency)
+{
+}
+
+void S2::OptionsVisitor::Output(bool on)
+{
+}
+
+void S2::OptionsVisitor::Waveform(BuiltinWaveform wf)
+{
+}
+
+void S2::OptionsVisitor::Waveform(const WaveData&)
+{
+}
+
+void S2::OptionsVisitor::Send(const char * cmd)
+{
+}
+
+void S2::OptionsVisitor::Lock(bool b)
+{
+}
+
+void S2::OptionsVisitor::Offset(double p)
+{
+}
+
+void S2::OptionsVisitor::Phase(int degrees) {}
+void S2::OptionsVisitor::Sync(bool on) {}
+void S2::OptionsVisitor::Duty(double percent) {}
+void S2::OptionsVisitor::Preset(const char * filename){}
+void S2::OptionsVisitor::Simulation(bool b){}
+void S2::OptionsVisitor::Name(const char * name){}
+void S2::OptionsVisitor::Program(int id) {}
+void S2::OptionsVisitor::Code(const char * code) {}
+void S2::OptionsVisitor::Verbosity(S2::Verbosity) {}
+void S2::OptionsVisitor::Loop(bool) {}
+void S2::OptionsVisitor::Iterations(int) {}
+

@@ -1,21 +1,35 @@
 #include "S2.h"
+#include <fstream>
 
 S2::Database::Database()
 {
 }
 
-void S2::Database::Read(std::istream & is)
+void S2::Database::VisitDataFiles(const Options & options, DatabaseVisitor&visitor) const
+{
+	int id=1;
+	
+	// TODO: Locate other datafiles as well
+	visitor.DatabaseFile(id, options.DataFile("programs.csv"));
+}
+
+void S2::DatabaseVisitor::DatabaseFile(int & row, const std::string & filename)
+{
+	std::ifstream file(filename.c_str());
+	DatabaseFile(row, file);
+}
+
+void S2::DatabaseVisitor::DatabaseFile(int & row, std::istream & file)
 {
 	std::string line;
-	while (std::getline(is, line))
+	while(std::getline(file, line))
 	{
-		AddRow(line);
+		DatabaseRow(row++, line);
 	}
 }
 
-void S2::Database::AddRow(const std::string &row)
+void S2::DatabaseVisitor::DatabaseRow(int id, const std::string & line)
 {
-	programs.push_back(DatabaseProgram(row));
 }
 
 template<typename It>
@@ -47,31 +61,25 @@ std::string readStringColumn(std::string::const_iterator &i, std::string::const_
 	return std::string(p.first, p.second);
 }
 
-S2::DatabaseProgram::DatabaseProgram(const std::string & row)
+S2::DatabaseProgram::DatabaseProgram(const Options & options, const std::string & row) : Code(options)
 {
 	std::string::const_iterator i = row.begin(), j = row.end();
-	auto name = readStringColumn(i, j);
-	auto dataset = readStringColumn(i, j);
-	auto durationMinutes = readStringColumn(i, j);
-	auto description = readStringColumn(i, j);
-	auto code = readStringColumn(i, j);
-	auto organOptional = readStringColumn(i, j);
-	auto diseaseOptional = readStringColumn(i, j);
-	auto stepSizeSeconds = readStringColumn(i, j);
+	name = readStringColumn(i, j);
+	dataset = readStringColumn(i, j);
+	durationMinutes = atoi(readStringColumn(i, j).c_str());
+	description = readStringColumn(i, j);
+	code = readStringColumn(i, j);
+	organ = readStringColumn(i, j);
+	disease = readStringColumn(i, j);
+	stepSize = atof(readStringColumn(i, j).c_str());
 }
 
-double S2::Code::Duration() const
+std::pair<const char*, const char*> S2::DatabaseProgram::GetCode() const
 {
-	return 0.0;
+	return std::make_pair(code.c_str(), code.c_str()+code.length());
 }
 
-void S2::Code::GetState(double d, OutputState &s) const
+S2::Code::Code(const Options & options) : options(options)
 {
-}
-
-
-std::string S2::DatabaseProgram::Description() const
-{
-	return "";
 }
 

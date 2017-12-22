@@ -96,8 +96,12 @@ S2::Devices::Devices(const Options & options)
 {
 	if(options.simulation)
 	{
-		generators.push_back(Generator(0,"Simulator"));
-		pulses.push_back(Pulse(0, "Simulator"));
+		for(int i=0; i<10; ++i)
+		{
+			generators.push_back(Generator(i,simulation));
+		}
+		pulses.push_back(Pulse(0,simulation));
+		return;
 	}
 
 	FindDevices();
@@ -222,7 +226,7 @@ void MacOS::HidDevice::StopRead() const
 
 std::shared_ptr<S2::Stream> S2::DefaultStreamFactory::Open(Devices & devices, Pulse &p)
 {
-	if(p.id==0)
+	if(p.Simulation())
 		return std::make_shared<DummyPulse>();
 	else
 		return std::shared_ptr<MacOS::PulseData>(new MacOS::PulseData(devices.impl->hm.devices[p.id-1]));

@@ -8,17 +8,13 @@ class Controller : public S2::OptionsVisitor
 	S2::StreamFactory & sf;
 public:
 	Controller(const S2::Options &o, S2::ProgressMonitor &pm, S2::StreamFactory &sf) :
-		devices(o), pm(pm), sf(sf)
+		pm(pm), sf(sf), devices(o)
 	{
 		generator = o.generator;
 		channel = o.channel;
 		devices.GetGenerator(generator).Open(devices, sf);
 	}
-
-	void Verbose(bool b)
-	{
-	}
-
+	
 	void Duration(double d)
 	{
 		std::cout << "Pausing for " << d << " seconds\n";
@@ -110,7 +106,7 @@ public:
 		// !!
 	}
 
-	void Simulation(bool) { }
+	void Simulation(bool b) { if(b) generator=0; }
 
 	void Duty(double duty)
 	{
@@ -119,6 +115,10 @@ public:
 	}
 
 	void Preset(const char * filename)
+	{
+	}
+
+	void Name(const char * name)
 	{
 	}
 

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-S2::Preset::Preset(std::istream & contents)
+S2::Preset::Preset(const Options & options, std::istream & contents)
 {
 	if (!contents)
 		throw IOError("Cannot load preset");
@@ -33,7 +33,7 @@ S2::Preset::Preset(std::istream & contents)
 		code != entries.upper_bound("List4") && description != entries.upper_bound("List2");
 			++code, ++description)
 	{
-		programs.push_back(Program(description->second, code->second));
+		programs.push_back(Program(options, description->second, code->second));
 	}
 }
 
@@ -71,6 +71,17 @@ std::string S2::Preset::Description() const
 	return "!!";
 }
 
-void S2::Preset::GetState(double d, OutputState &s) const
+void S2::Preset::GetState(double time, ChannelState &s) const
 {
+	for(const auto & p : programs)
+	{
+		if(time<p.Duration())
+		{
+			p.GetState(time, s);
+			return;
+		}
+		else
+		time -= p.Duration();
+	}
+	s.output = false;
 }

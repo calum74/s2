@@ -18,6 +18,13 @@ namespace S2
 	class Channel
 	{
 	public:
+
+	private:
+		// The current state.
+		// Only update the state if
+		double amplitude, frequency, duty;
+		BuiltinWaveform waveform;
+
 		virtual void Amplitude(double value) = 0;
 		virtual void Frequency(double value) = 0;
 		virtual void Waveform(BuiltinWaveform value) = 0;

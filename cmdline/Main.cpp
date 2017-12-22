@@ -34,8 +34,7 @@ int S2::StatusCommand(const Options&options, ProgressMonitor &pm, StreamFactory 
 
 int S2::PulseCommand(const Options & options, ProgressMonitor &pm, StreamFactory &sf)
 {
-// options.iterations=0;
-	bool loop = false; // options.iterations == 0; //argc > 0 && strcmp(argv[0], "-l") == 0;
+	bool loop = options.loop;
 	if (loop)
 	{
 		std::cout << "Reading pulse. Press Ctrl+C to stop.\n";
@@ -46,7 +45,7 @@ int S2::PulseCommand(const Options & options, ProgressMonitor &pm, StreamFactory
 		Pulse &pulse = devices.GetPulse(options.pulse);
 		pulse.Open(devices, sf);
 
-		for(int i=0; options.iterations==0 || i<options.iterations; ++i)
+		for(int i=0; loop || i<options.iterations; ++i)
 		{
 			std::cout << pulse.BPM() << " bpm\n";
 		}
@@ -81,7 +80,7 @@ int S2::Main(int argc, const char *argv[])
 		Options options(argc, argv);
 		std::string command = options.command;
 		DefaultStreamFactory sf;
-		DefaultProgressMonitor pm(std::cout);
+		DefaultProgressMonitor pm(options.verbosity, std::cout);
 
 		if (command=="status")
 			return StatusCommand(options, pm, sf);
@@ -98,7 +97,11 @@ int S2::Main(int argc, const char *argv[])
 		else if (command== "set")
 			Set(options);
 		else if (command=="run")
-			Run(options);
+			return Run(options, pm, sf);
+		else if(command=="find")
+			return FindCommand(options, pm);
+		else if(command=="validate")
+			return ValidateDatabase(options);
 		else
 			throw InvalidCommandLineArgument(options.command);
 

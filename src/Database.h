@@ -2,22 +2,26 @@
 
 namespace S2
 {
-	class Code : public Sequence
-	{
-		std::string code;
-		double Duration() const;
-		void GetState(double time, OutputState & state) const;
-	};
-
-	struct DatabaseProgram : Code
+	struct DatabaseProgram : public Code
 	{
 	public:
-		DatabaseProgram(const std::string & row);
-		std::string name;
-		std::string description;
-		double stepSize;
+		DatabaseProgram(const Options & options, const std::string & row);
 
-		std::string Description() const;
+		std::string name, description, dataset, code, organ, disease;
+		double durationMinutes;
+		double stepSize;
+		std::pair<const char*, const char*> GetCode() const;
+	};
+
+	class DatabaseVisitor
+	{
+	public:
+		virtual void DatabaseFile(int &rowId, const std::string & filename);
+
+		virtual void DatabaseFile(int & rowId, std::istream & file);
+
+		// Raw access to all data files
+		virtual void DatabaseRow(int rowId, const std::string & line);
 	};
 
 	class Database
@@ -26,16 +30,12 @@ namespace S2
 		Database();
 
 		// Read in all of the columns
-		void Read(std::istream &file);
 		void Index();
 
 		std::vector<DatabaseProgram> programs;
 		std::map<std::string, int> programsByName;
 		std::map<double, int> lowerBound, upperBound;
 
-		Program & GetProgram(const std::string & programName);
-
-		// Query
-		void AddRow(const std::string & row);
+		void VisitDataFiles(const Options &, DatabaseVisitor&) const;
 	};
 }

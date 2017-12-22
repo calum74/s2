@@ -6,14 +6,14 @@ namespace S2
 	class Preset : public Sequence
 	{
 	public:
-		Preset(std::istream &contents);
+		Preset(const Options & options, std::istream &contents);
 
 		int NumberOfPrograms() const;
 		const std::string & GetProgram(int p) const;
 		const std::string & GetProgramDescription(int p) const;
 
 		double Duration() const;
-		void GetState(double time, OutputState & state) const;
+		void GetState(double time, ChannelState & state) const;
 
 		std::string Description() const;
 	private:

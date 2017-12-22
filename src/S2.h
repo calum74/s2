@@ -38,5 +38,8 @@ namespace S2
 	void Sleep(double seconds);
 	int Send(const char * sendString);
 	int Set(const Options & options);
-	int Run(const Options & options);
+	int Run(const Options & options, ProgressMonitor &pm, StreamFactory &sf);
+
+	int FindCommand(const Options & options, ProgressMonitor &pm);
+	int ValidateDatabase(const Options & options);
 }

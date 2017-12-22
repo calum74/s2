@@ -9,6 +9,13 @@ S2::Device::Device(int id, const std::string& filename) : id(id), filename(filen
 {
 }
 
+const char * S2::simulation = "Simulation";
+
+bool S2::Device::Simulation() const
+{
+	return filename==simulation;
+}
+
 S2::Pulse & S2::Devices::GetPulse(int id)
 {
 	if (id == 0 && !pulses.empty())

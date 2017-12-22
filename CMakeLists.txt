@@ -31,6 +31,7 @@ add_library(s2core STATIC
 	src/Devices.h
 	src/Devices.cpp
 	src/Device.h
+	src/FindCommand.cpp
 	src/Generator.cpp
 	src/Generator.h
 	src/Options.h

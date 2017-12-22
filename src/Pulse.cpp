@@ -34,6 +34,7 @@ int S2::DummyPulse::Read(char * buffer, int size)
 		buffer[4] = (unsigned char)(value >> 8);
 		buffer[5] = (unsigned char)value;
 	}
+	S2::Sleep(0.1);
 	return std::min(size, 65);
 }
 

@@ -102,7 +102,7 @@ void testProgram()
 {
 	S2::Program p("1000=10,10=20");
 	assert(p.Duration() == 30);
-	S2::OutputState state;
+	S2::ChannelState state;
 	p.GetState(-1.0, state);
 	assert(!state.output);
 
@@ -132,27 +132,74 @@ void testPreset()
 	S2::Preset p(ss);
 
 	assert(p.Duration() == 110);
-	S2::OutputState state;
+	S2::ChannelState state;
 	p.GetState(0.0, state);
 	assert(state.output);
+
+	p.GetState(20, state);
+	assert(state.frequencyHz == 1000.0);
+	p.GetState(30, state);
+	assert(state.frequencyHz == 5000.0);
 }
 
-void testRunnable()
+void checkSequence(S2::MultiChannelSequence & seq, double stepSize, bool loop, bool success,
+				   int generator, int channel, double timestamp, bool output, double frequency)
 {
-	// Run multiple generators?
-	/*
-		RunSequence sequence;
+	S2::ChannelState state;
+	assert(seq.Next(state, stepSize,loop) == success);
 
-		Runnable is awkward
+	if(success)
+	{
+		assert(state.channelId == S2::ChannelId(generator, channel));
+		assert(output == state.output);
+		assert(frequency == state.frequencyHz);
+	}
+}
 
-		Pool p;
-		p.add(runnable, channel1, 0.0);
-		p.add(program, channel2, 5.0);
+void testMultiChannelSequence()
+{
+	S2::MultiChannelSequence sequence;
+	sequence.Add(S2::ChannelId(0,0), std::make_shared<S2::Program>("1000,2000"));
+	sequence.Add(S2::ChannelId(1,0), std::make_shared<S2::Program>("3000=20,4000=280,1000-2000=5"));
 
-	*/
+	sequence.Begin();
+	checkSequence(sequence, 1.0, true, true, 0, 0,  0, true, 1000);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 0, true, 3000);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 20, true, 4000);
+	checkSequence(sequence, 1.0, true, true, 0, 0, 180, true, 2000);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 300, true, 1000);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 301, true, 1200);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 302, true, 1400);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 303, true, 1600);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 304, true, 1800);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 305, true, 3000);
+	checkSequence(sequence, 1.0, true, true, 1, 0, 325, true, 4000);
+	checkSequence(sequence, 1.0, true, true, 0, 0, 360, true, 1000);
 
+	sequence.Begin();
+	checkSequence(sequence, 1.0, false, true, 0, 0,  0, true, 1000);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 0, true, 3000);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 20, true, 4000);
+	checkSequence(sequence, 1.0, false, true, 0, 0, 180, false, 0);
 
+	checkSequence(sequence, 1.0, false, true, 1, 0, 300, true, 1000);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 301, true, 1200);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 302, true, 1400);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 303, true, 1600);
+	checkSequence(sequence, 1.0, false, true, 1, 0, 304, false, 0);
 
+	S2::ChannelState state;
+	while(sequence.Next(state, 1.0, false))
+	{
+		std::cout << state.channelId.first << "." << state.channelId.second << ": " << state.time << ": " << state.frequencyHz << "Hz, output=" << state.output << "\n";
+	}
+
+	// Now test sequencing
+	S2::MultiChannelSequence seq2;
+	seq2.Add(S2::ChannelId(0,0), std::make_shared<S2::Program>("1000,2000"));
+	seq2.Add(S2::ChannelId(0,0), std::make_shared<S2::Program>("3000"));
+	seq2.Begin();
+	assert(seq2.Duration()==3*180);
 }
 
 int main()
@@ -164,6 +211,7 @@ int main()
 	testProgram();
 	// testDatabase();
 	testPreset();
+	testMultiChannelSequence();
 	std::cout << "Tests passed\n";
 	return 0;
 }
