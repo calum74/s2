@@ -2,8 +2,19 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <sys/time.h>
+#include <ctime>
 #include <cmath>
+
+
+#ifdef _WIN32
+struct timeval
+{
+	int tv_sec, tv_usec;
+};
+inline void gettimeofday(timeval* t, void*) { }
+#else
+#include <sys/time.h>
+#endif
 
 // !! Into class
 class Runner : public S2::OptionsVisitor

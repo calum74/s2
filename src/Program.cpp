@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 S2::Program::Program(const Options & options, const std::string & c) : Code(options), code(c)
 {

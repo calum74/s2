@@ -1,6 +1,7 @@
 #include "S2.h"
 #include <fstream>
 #include <cctype>
+#include <algorithm>
 
 bool contains(const std::string & search, const char * pattern, const char * patternend)
 {

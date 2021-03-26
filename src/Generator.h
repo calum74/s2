@@ -19,7 +19,7 @@ namespace S2
 	{
 	public:
 
-	private:
+	// private:
 		// The current state.
 		// Only update the state if
 		double amplitude, frequency, duty;
