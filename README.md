@@ -144,7 +144,6 @@ s2 scan @my_settings.config
 | Variable name | Commands | Units | Values | Default value | Description |
 |---------------|----------|-------| -------|---------------|-------------|
 | amplitude | control, run | V, mV | 0-20/40V | | Sets the peak-peak voltage. When both generators are used, the value gives the combined amplitide. |
-
 | channel       | scan, run, control | 0 | Specifies which channel of the generator to use. Options are `0`, `1` or `2`. Channel `0` means "invert and sync" using both channels. | channel=1 |
 | duration | control, run | s,m,h | | | Alter the total duration of the program or preset. |
 | frequency | control | uHz, mHz, Hz, kHz, MHz | Change the frequency on the generator. | frequency=123.45kHz |
