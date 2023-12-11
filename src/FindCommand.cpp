@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cctype>
 #include <algorithm>
+#include <cstring>
 
 bool contains(const std::string & search, const char * pattern, const char * patternend)
 {
