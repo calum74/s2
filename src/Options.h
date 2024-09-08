@@ -77,64 +77,64 @@ namespace S2
 
 	struct Options : public OptionsVisitor
 	{
-		Options(int argc, const char *argv[]);
-		int argc;
-		const char **argv;
+          Options(int argc = 0, const char *argv[] = {});
+          int argc;
+          const char **argv;
 
-		const double tissue_factor=1.4142135623731;
-		const double bp_to_hz = 8.63808777288135E+17;
-		const double mw_to_hz = 2.25234274582033E+23;
+          const double tissue_factor = 1.4142135623731;
+          const double bp_to_hz = 8.63808777288135E+17;
+          const double mw_to_hz = 2.25234274582033E+23;
 
-		const char * command;
-		enum Verbosity verbosity;
-		int iterations; // Loop a fixed number of iterations. 0 = infinite, 1=once etc
-						// 		double stableThresh
+          const char *command;
+          enum Verbosity verbosity;
+          int iterations; // Loop a fixed number of iterations. 0 = infinite,
+                          // 1=once etc 		double stableThresh
 
-		// RampUp
-		double ramp; // The maximum rate of change of voltage, in V/s
-		double frequency;
-		double amplitude;
-		double duration;
-		bool simulation;
+          // RampUp
+          double ramp; // The maximum rate of change of voltage, in V/s
+          double frequency;
+          double amplitude;
+          double duration;
+          bool simulation;
 
-		int pulse; // 0=default.
-		int generator; // 0=default, otherwise need to specify.
-		int channel; // 0 = both channels, 1=Ch1, 2=Ch2.
+          int pulse;     // 0=default.
+          int generator; // 0=default, otherwise need to specify.
+          int channel;   // 0 = both channels, 1=Ch1, 2=Ch2.
 
-		bool loop;
+          bool loop;
 
-		std::string preset;
-	    std::string dataDir;  // ~/.s2
+          std::string preset;
+          std::string dataDir; // ~/.s2
 
-		// Looks for a given filename in the data directory.
-		std::string DataFile(const char * name) const;
+          // Looks for a given filename in the data directory.
+          std::string DataFile(const char *name) const;
 
-		void Visit(OptionsVisitor & visitor) const;
-		void VisitFile(std::istream & file, OptionsVisitor & visitor) const;
-		void SaveOptions() const;
-		void SaveOptions(std::ostream&) const;
+          void Visit(OptionsVisitor &visitor) const;
+          void VisitFile(std::istream &file, OptionsVisitor &visitor) const;
+          void SaveOptions() const;
+          void SaveOptions(std::ostream &) const;
 
-		virtual void Duration(double seconds);
-		virtual void UnrecognisedOption(const char * option);
-		virtual void Generator(int generator);
-		virtual void Channel(int channel);
-		void Pulse(int id);
-		virtual void Amplitude(double amplitude);
-		virtual void Frequency(double frequency);
-		virtual void Output(bool on);
-		virtual void Waveform(BuiltinWaveform wf);
-		virtual void Waveform(const WaveData &);
-		virtual void Send(const char * cmd);
-		virtual void Lock(bool on);
-		virtual void Offset(double d);
-		virtual void Phase(int degrees);
-		virtual void Sync(bool on);
-		virtual void Duty(double percent);
-		void Preset(const char * filename);
-		void Simulation(bool b);
-		void Verbosity(S2::Verbosity);
-		void Loop(bool);
-		void Iterations(int i);
+          virtual void Duration(double seconds);
+          virtual void UnrecognisedOption(const char *option);
+          virtual void Generator(int generator);
+          virtual void Channel(int channel);
+          void Pulse(int id);
+          virtual void Amplitude(double amplitude);
+          virtual void Frequency(double frequency);
+          virtual void Output(bool on);
+          virtual void Waveform(BuiltinWaveform wf);
+          virtual void Waveform(const WaveData &);
+          virtual void Send(const char *cmd);
+          virtual void Lock(bool on);
+          virtual void Offset(double d);
+          virtual void Phase(int degrees);
+          virtual void Sync(bool on);
+          virtual void Duty(double percent);
+          void Preset(const char *filename);
+          void Simulation(bool b);
+          void Verbosity(S2::Verbosity);
+          void Loop(bool);
+          void Iterations(int i);
 
 	private:
 		// Gets the name of the data directory.
