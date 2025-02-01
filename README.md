@@ -160,10 +160,9 @@ s2 run generator=5 preset="My scan.txt" duration=1h
 
 Commands that include variables with units require both a numeric value and the unit (without spaces):
 
-    Correct:
-
-s2 control amplitude=5V
-s2 control frequency=500kHz
+    Correct: 
+    s2 control amplitude=5V
+    s2 control frequency=500kHz
 
 Incorrect (due to spaces or missing units):
 
