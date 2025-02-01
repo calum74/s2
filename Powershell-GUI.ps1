@@ -8,7 +8,7 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "S2 Control GUI"
 # Adjusted size to fit all sections.
-$form.Size = New-Object System.Drawing.Size(820, 780)
+$form.Size = New-Object System.Drawing.Size(820, 840)
 $form.StartPosition = "CenterScreen"
 
 # --------------------------------------------------
@@ -116,13 +116,12 @@ function Add-LabeledControl {
         [int]$controlWidth = 150
     )
     $lbl = New-Object System.Windows.Forms.Label
-    $lbl.Location = New-Object System.Drawing.Point([int]$x, [int]$y)
-    $lbl.Size = New-Object System.Drawing.Size([int]$labelWidth, 20)
+    $lbl.Location = New-Object System.Drawing.Point($x, $y)
+    $lbl.Size = New-Object System.Drawing.Size($labelWidth, 20)
     $lbl.Text = $labelText
     $varGroup.Controls.Add($lbl)
-    $newX = [int]$x + [int]$labelWidth
-    $control.Location = New-Object System.Drawing.Point($newX, [int]$y)
-    $control.Size = New-Object System.Drawing.Size([int]$controlWidth, 20)
+    $control.Location = New-Object System.Drawing.Point(($x + $labelWidth), $y)
+    $control.Size = New-Object System.Drawing.Size($controlWidth, 20)
     $varGroup.Controls.Add($control)
 }
 
@@ -190,14 +189,14 @@ $txtExtra.Size = New-Object System.Drawing.Size(320,20)
 $varGroup.Controls.Add($txtExtra)
 
 # --------------------------------------------------
-# Preset Selection Section
+# Preset Selection Section (Using TreeView)
 # --------------------------------------------------
 $presetGroup = New-Object System.Windows.Forms.GroupBox
 $presetGroup.Text = "Preset Selection"
 # Place this below the Variables group.
 $presetGroup.Location = New-Object System.Drawing.Point(10,440)
-# Height set to show folder, list, and buttons.
-$presetGroup.Size = New-Object System.Drawing.Size(780,120)
+# Increase height to allow for the TreeView.
+$presetGroup.Size = New-Object System.Drawing.Size(780,150)
 $form.Controls.Add($presetGroup)
 
 # Preset Folder label, textbox, and browse button
@@ -227,69 +226,107 @@ $btnPresetFolderBrowse.Add_Click({
     }
 })
 
-# ListBox to display preset files
-$lstPresets = New-Object System.Windows.Forms.ListBox
-$lstPresets.Location = New-Object System.Drawing.Point(10,50)
-$lstPresets.Size = New-Object System.Drawing.Size(500,50)
-$presetGroup.Controls.Add($lstPresets)
+# TreeView to display preset files organized by subfolder.
+$treeViewPresets = New-Object System.Windows.Forms.TreeView
+$treeViewPresets.Location = New-Object System.Drawing.Point(10,50)
+$treeViewPresets.Size = New-Object System.Drawing.Size(500,120)
+$presetGroup.Controls.Add($treeViewPresets)
 
-# Button to refresh preset list
+# Button to refresh preset tree.
 $btnRefreshPresets = New-Object System.Windows.Forms.Button
 $btnRefreshPresets.Location = New-Object System.Drawing.Point(520,50)
 $btnRefreshPresets.Size = New-Object System.Drawing.Size(100,30)
 $btnRefreshPresets.Text = "Refresh"
 $presetGroup.Controls.Add($btnRefreshPresets)
 
-# Button to load selected preset
+# Button to load selected preset.
 $btnLoadPreset = New-Object System.Windows.Forms.Button
 $btnLoadPreset.Location = New-Object System.Drawing.Point(520,90)
 $btnLoadPreset.Size = New-Object System.Drawing.Size(100,30)
 $btnLoadPreset.Text = "Load Preset"
 $presetGroup.Controls.Add($btnLoadPreset)
 
-# Read-only textbox to display the selected preset file (to be passed as a parameter)
+# Read-only textbox to display the selected preset file path (to be passed as a parameter).
 $txtPreset = New-Object System.Windows.Forms.TextBox
-$txtPreset.Location = New-Object System.Drawing.Point(10,105)
+$txtPreset.Location = New-Object System.Drawing.Point(10,135)
 $txtPreset.Size = New-Object System.Drawing.Size(500,20)
 $txtPreset.ReadOnly = $true
 $presetGroup.Controls.Add($txtPreset)
 
-# Function to refresh the list of presets (lists .txt files in the folder)
-function Refresh-PresetList {
-    $lstPresets.Items.Clear()
+# Function to recursively add nodes for directories and .txt files.
+function Add-PresetNodes {
+    param (
+        [System.Windows.Forms.TreeNode]$parentNode,
+        [string]$path
+    )
+    # Add subdirectories.
+    Get-ChildItem -Path $path -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        $dirNode = New-Object System.Windows.Forms.TreeNode($_.Name)
+        $dirNode.Tag = $_.FullName
+        $parentNode.Nodes.Add($dirNode) | Out-Null
+        Add-PresetNodes -parentNode $dirNode -path $_.FullName
+    }
+    # Add .txt files.
+    Get-ChildItem -Path $path -Filter *.txt -File -ErrorAction SilentlyContinue | ForEach-Object {
+        $fileNode = New-Object System.Windows.Forms.TreeNode($_.Name)
+        $fileNode.Tag = $_.FullName
+        $parentNode.Nodes.Add($fileNode) | Out-Null
+    }
+}
+
+# Updated Refresh-PresetTree: Instead of creating a single root node,
+# add all subdirectories and .txt files in the selected folder as top-level nodes.
+function Refresh-PresetTree {
+    $treeViewPresets.Nodes.Clear()
     $folder = $txtPresetFolder.Text.Trim()
     if (Test-Path $folder) {
-        Get-ChildItem -Path $folder -Filter *.txt -File | ForEach-Object {
-            $lstPresets.Items.Add($_.FullName)
+        # Add subdirectories as nodes.
+        Get-ChildItem -Path $folder -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            $dirNode = New-Object System.Windows.Forms.TreeNode($_.Name)
+            $dirNode.Tag = $_.FullName
+            $treeViewPresets.Nodes.Add($dirNode) | Out-Null
+            Add-PresetNodes -parentNode $dirNode -path $_.FullName
         }
+        # Add .txt files in the main folder as top-level nodes.
+        Get-ChildItem -Path $folder -Filter *.txt -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $fileNode = New-Object System.Windows.Forms.TreeNode($_.Name)
+            $fileNode.Tag = $_.FullName
+            $treeViewPresets.Nodes.Add($fileNode) | Out-Null
+        }
+        $treeViewPresets.ExpandAll()
+        $treeViewPresets.Refresh()
     }
     else {
         [System.Windows.Forms.MessageBox]::Show("Preset folder not found: $folder", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 }
 
-# Attach the refresh button event
-$btnRefreshPresets.Add_Click({ Refresh-PresetList })
+$btnRefreshPresets.Add_Click({ Refresh-PresetTree })
 
-# When an item is double-clicked in the list, load it.
-$lstPresets.Add_DoubleClick({
-    if ($lstPresets.SelectedItem) {
-        $txtPreset.Text = $lstPresets.SelectedItem
+# When a node is double-clicked, if it represents a file (i.e. a leaf node), load its full path.
+$treeViewPresets.Add_NodeMouseDoubleClick({
+    param($sender, $e)
+    if ($e.Node.Nodes.Count -eq 0) {
+        $filePath = $e.Node.Tag
+        if (Test-Path $filePath) {
+            $txtPreset.Text = $filePath
+        }
     }
 })
 
 # Alternatively, load preset when the "Load Preset" button is clicked.
 $btnLoadPreset.Add_Click({
-    if ($lstPresets.SelectedItem) {
-        $txtPreset.Text = $lstPresets.SelectedItem
+    $selectedNode = $treeViewPresets.SelectedNode
+    if ($selectedNode -and ($selectedNode.Nodes.Count -eq 0)) {
+        $txtPreset.Text = $selectedNode.Tag
     }
     else {
         [System.Windows.Forms.MessageBox]::Show("No preset file selected.", "Info", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     }
 })
 
-# Optionally, refresh the preset list on startup.
-Refresh-PresetList
+# Optionally, refresh the preset tree on startup.
+Refresh-PresetTree
 
 # --------------------------------------------------
 # Commands Section
@@ -297,7 +334,7 @@ Refresh-PresetList
 $cmdGroup = New-Object System.Windows.Forms.GroupBox
 $cmdGroup.Text = "Commands"
 # Place below the Preset section.
-$cmdGroup.Location = New-Object System.Drawing.Point(10,570)
+$cmdGroup.Location = New-Object System.Drawing.Point(10,600)
 $cmdGroup.Size = New-Object System.Drawing.Size(780,70)
 $form.Controls.Add($cmdGroup)
 
@@ -321,13 +358,13 @@ foreach ($cmd in $commands) {
 # --------------------------------------------------
 $lblOutput = New-Object System.Windows.Forms.Label
 # Placed below the Commands section.
-$lblOutput.Location = New-Object System.Drawing.Point(10,650)
+$lblOutput.Location = New-Object System.Drawing.Point(10,680)
 $lblOutput.Size = New-Object System.Drawing.Size(100,20)
 $lblOutput.Text = "Command Output:"
 $form.Controls.Add($lblOutput)
 
 $txtOutput = New-Object System.Windows.Forms.TextBox
-$txtOutput.Location = New-Object System.Drawing.Point(10,675)
+$txtOutput.Location = New-Object System.Drawing.Point(10,705)
 $txtOutput.Size = New-Object System.Drawing.Size(780,60)
 $txtOutput.Multiline = $true
 $txtOutput.ScrollBars = "Vertical"
@@ -335,7 +372,7 @@ $txtOutput.ReadOnly = $true
 $form.Controls.Add($txtOutput)
 
 $buttonClearOutput = New-Object System.Windows.Forms.Button
-$buttonClearOutput.Location = New-Object System.Drawing.Point(690,740)
+$buttonClearOutput.Location = New-Object System.Drawing.Point(690,770)
 $buttonClearOutput.Size = New-Object System.Drawing.Size(100,24)
 $buttonClearOutput.Text = "Clear Output"
 $form.Controls.Add($buttonClearOutput)
