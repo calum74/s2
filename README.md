@@ -1,159 +1,192 @@
 # s2 (Document in progress)
 
-Cross-platform command line interface for Spooky2.
+s2 is a cross-platform command-line utility for controlling the Spooky2 device. It serves as a lightweight, alternative replacement for the standard Spooky2 software and is ideal for scenarios where you may not have access to a Windows PC. Whether you're running on Linux, macOS, or a low-power device like a Raspberry Pi, s2 offers flexibility and ease of use.
+
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+  - [Common Features](#common-features)
+  - [Additional Features](#additional-features)
+  - [Missing Features](#missing-features)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Running a Program](#running-a-program)
+  - [Scanning](#scanning)
+- [Building from Source](#building-from-source)
+  - [Linux](#building-and-installing-on-linux)
+  - [macOS](#building-and-installing-on-macos)
+  - [Windows](#building-and-installing-on-windows)
+- [Quick Start Guide](#quick-start-guide)
+- [Commands](#commands)
+- [Variables](#variables)
+  - [General Comments](#general-comments)
+  - [List of Variables](#list-of-variables)
+- [Files](#files)
 
 ## Overview
+s2 is designed for users who need a flexible, command-line based solution to run Spooky2 presets and programs without relying on a full Windows installation. Its cross-platform nature makes it a great choice for embedded systems and low-power devices.
 
-s2 is a command-line utility for controlling the Spooky2, and is designed as a simple replacement for the standard Spooky2 software. This is useful in scenarios where you don't have access to a Windows PC, and can be used for example on a Mac or Linux device such as a Raspberry Pi. A Raspberry Pi is a very cheap and low power device and is a great solution for people who don't want to buy a Windows PC or leave a PC switched on permanently.
+## Features
+### Common Features
+- **Run Spooky2 Presets**: Execute preset presentations from the Spooky2 collection.
+- **Execute Saved Programs**: Launch and control saved Spooky2 programs.
+- **Biofeedback Scan**: Initiate biofeedback scans directly from the command line.
 
-Features in common with the Spooky2:
-* Run presents from the Spooky2 collection.
-* Run saved Spooky2 programs.
-* Biofeedback scan
+### Additional Features
+- **Dual Program Execution**: Run two different programs simultaneously on the same generator.
+- **Advanced Biofeedback Scans**: Utilize a new algorithm to perform scans and export results back to Spooky2.
+- **Interruptible Scans**: Scans can be paused (Ctrl+C) and resumed.
+- **Low-Level Control**: Set specific generator parameters for fine-tuned operation.
+- **Pulse Rate Functionality**: Manage and adjust pulse rates.
+- **Activity Diary**: Automatically logs all activities.
+- **Time Compression/Extension**: Compress or extend a program to match a desired duration.
 
-Additional features (over Spooky2):
-* Run 2 different programs at the same time on the same generator.
-* Perform biofeedback scans using a new algorithm, and exports the results to Spooky2.
-* Biofeedback scans can be interrupted and resumed.
-* Low level control, setting specific generator parameters
-* Pulse rate function
-* Keeps a proper diary of all activities.
-* Compress program to a given time period.
+### Missing Features
+- **Reverse Lookup**: Not available due to the encrypted nature of the Spooky2 database.
+- **Some Advanced Options**: Certain advanced features are not yet implemented.
+- **Graphical User Interface**: Currently, there is no installer or GUI.
 
-Missing features:
-* Reverse lookup. This is because the Spooky2 database is encrypted, which I fully respect.
-* Some advanced options.
-* Convenient installer and a graphical user interface.
+**Note**: This software is not officially supported by Spooky2.
 
-Note that this software is not officially supported by Spooky2.
-
-
-## Getting started
-
+## Getting Started
 ### Installation
+There are two primary methods to get s2 running:
 
-There are two ways to get the software. Pre-build binaries are available, which can be copied to your computer. Otherwise follow the build instructions for your platform below. `s2` consists of a single file, so installation should not be too difficult.
+1. **Pre-built Binaries:** Download the binaries and copy them to your machine.
+2. **Building from Source:** Follow the platform-specific instructions below to build s2 yourself.
 
-Next, connect your generators and pulse and switch them on. On Windows, you may need to run the device driver setup program, located in `C:\Spooky2\CP210x_VCP_Windows`, and on MacOS, ... The drivers should automatically install on Linux.
+**Important:** Ensure your generators are connected and powered on.
 
-https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
+- **Windows**: You may need to run the device driver setup program (usually found in `C:\Spooky2\CP210x_VCP_Windows`).
+- **Linux**: Drivers should install automatically.
+- **macOS**: Check for any necessary driver installations.
 
-To see the attached devices, run
-
+Verify your connected hardware by running:
+```sh
+s2 status
 ```
-$ s2 status
-```
 
-This should list your attached hardware.
-
-### Running a program
-
-Copy the program from the Spooky2 software installation. Maybe use a memory stick. For example,
-
-```
-cd C:\Spooky2\Preset Collections\Detox\Contact
+### Running a Program
+To run a Spooky2 program, copy the desired file from your Spooky2 installation (via USB, network share, etc.) and run:
+```sh
+cd "C:\Spooky2\Preset Collections\Detox\Contact"
 s2 run generator=3 preset="Intestinal Parasites (C) - BY.txt"
 ```
 
 ### Scanning
-
-Scanning is performed using the `s2 scan` command as follows.
-
-```
+Start a biofeedback scan with:
+```sh
 s2 scan
 ```
+- **Interrupt & Resume**: Press `Ctrl+C` to interrupt. Running `s2 scan` again will resume from where it left off.
+- **Specify Generator**: Use `generator=N` to target a specific generator.
 
-The generator can be specified using the `generator=N` argument. The scan command is designed to be simple to use and can be interrupted at any time by pressing Ctrl+C. Running `s2 scan` will resume from where the scan left off.
-
-### Building
-
-#### Building and installing on Linux
-
-You can tailor these steps to suit your environment. For example, you may already have the prerequisites installed (git, cmake, g++), in which case you can simply skip that step. Most people prefer to build outside the source tree, so adapt as appropriate.
-
+## Building from Source
+### Building and Installing on Linux
+```sh
+sudo apt-get install git cmake g++
+git clone https://github.com/calum74/s2.git
+cd s2
+cmake -DCMAKE_BUILD_TYPE=Release
+make
+sudo make install
+s2 status
 ```
-$ sudo apt-get install git cmake g++
-$ git clone https://github.com/calum74/s2.git
-$ cd s2
-$ cmake -DCMAKE_BUILD_TYPE=Release
-$ make
-$ sudo make install
-$ s2 status
-```
-
-To upgrade, go to the `s2` directory containing the source code, and run `git pull && make && sudo make install` to install the latest version.
-
-#### Building and installing on MacOS
-
-Install xcode command line tools and cmake.
-https://cmake.org/download/
-`xcode-select --install`
-
-```
-$ git clone https://github.com/calum74/s2.git
-$ cd s2
-$ cmake -DCMAKE_BUILD_TYPE=Release -GXcode
-$ xcodebuild
+**Upgrading:**
+```sh
+git pull && make && sudo make install
 ```
 
-#### Building and installing on Windows
-
-Get the source code. This could be via ZIP file from github, using Git for Windows, or "Github Desktop". Install cmake (https://cmake.org/download/). Generate a Visual Studio solution file, and build the project in Visual Studio.
-
+### Building and Installing on macOS
+1. Install Xcode Command Line Tools and CMake:
+```sh
+xcode-select --install
 ```
-> git clone ...
-> cd s2
-> cmake -D ...
-> msbuild /p:Configuration=Release /p:Platform=x64
+2. Clone and build:
+```sh
+git clone https://github.com/calum74/s2.git
+cd s2
+cmake -DCMAKE_BUILD_TYPE=Release -GXcode
+xcodebuild
 ```
 
-## Quick start guide
+### Building and Installing on Windows
+1. Install Prerequisites:
+   - Git for Windows
+   - CMake
+   - Visual Studio 2019 or 2022 (with C++ development tools)
 
+2. Clone the Repository:
+```sh
+git clone https://github.com/calum74/s2.git
+cd s2
+```
 
+3. Generate Visual Studio Solution:
+   - For Visual Studio 2022:
+```sh
+mkdir build
+cd build
+cmake -G "Visual Studio 17 2022" -A x64 ..
+```
+   - For Visual Studio 2019:
+```sh
+mkdir build
+cd build
+cmake -G "Visual Studio 16 2019" -A x64 ..
+```
+
+4. Build the Project:
+```sh
+msbuild s2.sln /p:Configuration=Release /p:Platform=x64
+```
+Alternatively, open the generated `.sln` file in Visual Studio, select Release mode, and build (Ctrl + Shift + B).
+
+5. Verify your installation with:
+```sh
+s2 status
+```
+
+## Quick Start Guide
+(Expand with concise examples and common use cases.)
 
 ## Commands
+(Detailed command explanations and usage examples will be added here.)
 
 ## Variables
+### General Comments
+s2 uses variables to control program behavior. These settings are stored in:
+- **Windows**: `%AppData%\.s2\`
+- **Linux/macOS**: `~/.s2/`
 
-### General comments
-
-Variables control the behaviour of the current program. Variables are stored in `%AppData%/.s2/` folder on Windows, or the `~/.s2` folder on Linux and MacOS. The `s2 set` command can view or change the default values.
-
-Most commands are configurable. Variables can also be written on the command line following the command, and are the form `A=B` with no spaces. For example
-
+Modify values with:
+```sh
+s2 set variable=value
 ```
+Variables can also be passed on the command line:
+```sh
 s2 run generator=5 preset="My scan.txt" duration=1h
 ```
-
-Commands that have a unit are required to specify it. For example
-
-```
-$ s2 control amplitude=5V     # Good
-$ s2 control frequency=500kHz # Good
-$ s2 control amplitude = 5V   # Bad: spaces
-$ s2 control amplitude=5      # Bad: no unit
-```
-
-Additional variables can be stored in files, and passed to the `s2` command using the `@` symbol, e.g.
-
-```
+Load from a config file:
+```sh
 s2 scan @my_settings.config
 ```
-### List of variables
 
-| Variable name | Commands | Units | Values | Default value | Description |
-|---------------|----------|-------| -------|---------------|-------------|
-| amplitude | control, run | V, mV | 0-20/40V | | Sets the peak-peak voltage. When both generators are used, the value gives the combined amplitide. |
-| channel       | scan, run, control | 0 | Specifies which channel of the generator to use. Options are `0`, `1` or `2`. Channel `0` means "invert and sync" using both channels. | channel=1 |
-| duration | control, run | s,m,h | | | Alter the total duration of the program or preset. |
-| frequency | control | uHz, mHz, Hz, kHz, MHz | Change the frequency on the generator. | frequency=123.45kHz |
-| generator | scan, run, control | 0 | Specify which generator to use. By default, generator 0 uses the next available generator. | `generator=3` |
-| pulse | pulse, scan | | | 0 | Specifies which pulse unit to use. `0` means use the first available pulse unit. Usually there is only one attached. | `pulse=2` |
-| simulation | scan, run, control | off | Specifies whether to use simulated hardware. | `simulation=on` |
-| waveform | run, scan | | square | Sets the waveform |
-| compress | run | disabled | Compress or extend a program
-| loop | run, pulse | off | Whether to run the program in a loop |
-| iterations | run, pulse | 1 | Number of times to run the given command |
+### List of Variables
+| Variable | Commands | Units | Values | Default | Description |
+|----------|---------|-------|--------|---------|-------------|
+| amplitude | control, run | V, mV | 0–20 / 40V | | Sets peak-to-peak voltage. |
+| channel | scan, run, control | (none) | 0, 1, 2 | channel=1 | Selects generator channel. |
+| duration | control, run | s, m, h | | | Defines total duration. |
+| frequency | control | Hz, kHz | | | Adjusts generator frequency. |
+| generator | scan, run, control | (none) | | | Selects generator. |
+| pulse | pulse, scan | (none) | | | Selects pulse unit. |
+| simulation | scan, run, control | (none) | on/off | simulation=on | Simulated hardware. |
+| waveform | run, scan | (none) | | square | Sets waveform type. |
+| compress | run | (none) | disabled | | Compresses/extends program. |
+| loop | run, pulse | (none) | off | | Loops program execution. |
+| iterations | run, pulse | (none) | 1 | | Execution count. |
 
+## Files
+(Additional file-related documentation can be added here.)
 
-# Files
