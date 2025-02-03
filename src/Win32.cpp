@@ -138,3 +138,19 @@ S2::Win32Stream::~Win32Stream()
 	CloseHandle(file);
 }
 
+// Returns the full path for a file in the data directory.
+// On Windows, it uses backslashes; on POSIX systems, forward slashes.
+std::string S2::Options::DataFile(const char *name) const {
+  return dataDir + "\\" + name;
+}
+
+// Determines the data directory to use (e.g. ~/.s2 on Linux/Mac, or
+// %APPDATA%\.s2 on Windows). If the environment variable is not set, it falls
+// back to a local ".s2" directory.
+std::string S2::Options::DataDirectory() const {
+  const char *appData = std::getenv("APPDATA");
+  if (appData)
+    return std::string(appData) + "\\.s2";
+  else
+    return ".s2";
+}

@@ -500,31 +500,3 @@ void S2::OptionsVisitor::Loop(bool) {}
 void S2::OptionsVisitor::Iterations(int) {}
 
 #include <cstdlib>  // for std::getenv
-
-// Returns the full path for a file in the data directory.
-// On Windows, it uses backslashes; on POSIX systems, forward slashes.
-std::string S2::Options::DataFile(const char *name) const {
-#ifdef _WIN32
-    return dataDir + "\\" + name;
-#else
-    return dataDir + "/" + name;
-#endif
-}
-
-// Determines the data directory to use (e.g. ~/.s2 on Linux/Mac, or %APPDATA%\.s2 on Windows).
-// If the environment variable is not set, it falls back to a local ".s2" directory.
-std::string S2::Options::DataDirectory() const {
-#ifdef _WIN32
-    const char* appData = std::getenv("APPDATA");
-    if (appData)
-        return std::string(appData) + "\\.s2";
-    else
-        return ".s2";
-#else
-    const char* home = std::getenv("HOME");
-    if (home)
-        return std::string(home) + "/.s2";
-    else
-        return ".s2";
-#endif
-}
